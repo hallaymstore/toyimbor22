@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "on-primary-fixed": "#241a00",
+                  "error": "#ba1a1a",
+                  "background": "#faf9f8",
+                  "surface-container-low": "#f4f3f2",
+                  "on-surface-variant": "#4d4635",
+                  "on-secondary-fixed": "#261900",
+                  "outline-variant": "#d0c5af",
+                  "secondary-fixed-dim": "#e9c176",
+                  "on-primary-container": "#554300",
+                  "on-error-container": "#93000a",
+                  "on-error": "#ffffff",
+                  "on-surface": "#1a1c1c",
+                  "secondary-fixed": "#ffdea5",
+                  "inverse-primary": "#e9c349",
+                  "surface-container": "#eeeeed",
+                  "on-primary": "#ffffff",
+                  "primary-fixed-dim": "#e9c349",
+                  "inverse-surface": "#2f3130",
+                  "on-tertiary-container": "#074f3c",
+                  "surface": "#faf9f8",
+                  "primary": "#735c00",
+                  "on-secondary": "#ffffff",
+                  "on-tertiary-fixed-variant": "#0b513d",
+                  "primary-fixed": "#ffe088",
+                  "surface-tint": "#735c00",
+                  "inverse-on-surface": "#f1f0f0",
+                  "tertiary": "#2b6954",
+                  "outline": "#7f7663",
+                  "surface-dim": "#dadad9",
+                  "on-tertiary": "#ffffff",
+                  "on-primary-fixed-variant": "#574500",
+                  "tertiary-container": "#81bfa7",
+                  "primary-container": "#d4af37",
+                  "error-container": "#ffdad6",
+                  "tertiary-fixed-dim": "#95d3ba",
+                  "on-secondary-container": "#785a1a",
+                  "secondary-container": "#fed488",
+                  "surface-container-lowest": "#ffffff",
+                  "secondary": "#775a19",
+                  "tertiary-fixed": "#b0f0d6",
+                  "on-tertiary-fixed": "#002117",
+                  "surface-container-high": "#e9e8e7",
+                  "on-background": "#1a1c1c",
+                  "surface-container-highest": "#e3e2e1",
+                  "surface-variant": "#e3e2e1",
+                  "on-secondary-fixed-variant": "#5d4201",
+                  "surface-bright": "#faf9f8"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "fontFamily": {
+                  "headline": ["Noto Serif"],
+                  "body": ["Inter"],
+                  "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(24px);
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(115,92,0,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-serif italic text-amber-700 dark:text-amber-500">To’yimBor</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 transition-colors duration-300" href="#">Bosh sahifa</a>
+<a class="text-amber-800 dark:text-amber-400 font-bold border-b-2 border-amber-600 pb-1" href="#">Katalog</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 transition-colors duration-300" href="#">Bronlarim</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 transition-colors duration-300" href="#">AI Tavsiya</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="scale-95 active:scale-90 transition-transform p-2">
+<span class="material-symbols-outlined text-amber-700 dark:text-amber-500">person</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-20 max-w-7xl mx-auto px-6">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="text-5xl font-headline font-bold text-on-surface tracking-tight mb-4">Eksklyuziv <span class="italic text-primary">To'y Xizmatlari</span></h1>
+<p class="text-on-surface-variant max-w-2xl text-lg leading-relaxed">
+        Sizning unutilmas kuningiz uchun eng saralangan maskanlar va xizmat ko'rsatuvchilar katalogi. Hashamat va sifat uyg'unligi.
+      </p>
+</header>
+<!-- Filter/Search -->
+<div class="bg-surface-container-low p-6 rounded-xl mb-12 flex flex-wrap items-center gap-4">
+<div class="flex-1 min-w-[200px] bg-surface-container-lowest px-4 py-3 rounded border-b border-outline-variant flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder:text-on-surface-variant/50" placeholder="Restoran, bog' yoki ijrochilar..." type="text"/>
+</div>
+<div class="bg-surface-container-lowest px-4 py-3 rounded border-b border-outline-variant flex items-center gap-3 cursor-pointer">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<span class="text-on-surface">Toshkent sh.</span>
+</div>
+<div class="bg-surface-container-lowest px-4 py-3 rounded border-b border-outline-variant flex items-center gap-3 cursor-pointer">
+<span class="material-symbols-outlined text-primary">tune</span>
+<span class="text-on-surface">Filtrlar</span>
+</div>
+</div>
+<!-- Catalog Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+<!-- Card 1: Restaurant -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(115,92,0,0.06)] group flex flex-col h-full border border-outline-variant/20">
+<!-- 1. Images at Top -->
+<div class="relative h-72 overflow-hidden bg-surface-container-highest">
+<div class="flex w-full h-full snap-x snap-mandatory overflow-x-auto no-scrollbar">
+<img class="w-full h-full object-cover snap-center" data-alt="Grand ballroom with crystal chandeliers, luxury wedding setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwfTf4d6foo01t2sm3OJadPTESvbZe_dqvArdGrKc3c3HXBbUQ5HFrVrpNGKp8QCUa4J0LvqUM1LJlYLcu_CzZc0pQFlNrSnGvRBoq_onBdB0axFlYcfKKxIHKcApvpuoromU-D0Je6RE3-EWiwnXwLtojHQj8qOCIZD5uUR_i68bNQX8UNxTzTjSpRN9_y0fevHUVmn5_J6zlkFIvyJfkwEUQzijDUmsTJre1ZQyrSTg2Uj3xaLmwm1-YTsPubPsOlXinpS08sOK6"/>
+</div>
+<div class="absolute top-4 right-4 bg-primary text-on-primary text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Luks</div>
+</div>
+<!-- 2. Info & Ratings in Middle -->
+<div class="p-6 flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-headline font-bold text-on-surface">Royal Palace Tashkent</h3>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-sm">4.9</span>
+</div>
+<button class="text-[10px] text-primary underline underline-offset-2 font-medium">Sharhlarni o'qish</button>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm flex items-center gap-1 mb-4">
+<span class="material-symbols-outlined text-xs">location_on</span>
+            Mirzo Ulug'bek tumani, Shayxontohur ko'chasi 12
+          </p><p class="text-on-surface-variant/80 text-xs italic leading-relaxed mb-4 font-serif">Toshkentning eng muhtasham koshonalaridan biri, bu yerda har bir tafsilot sizning unutilmas bayramingiz uchun maxsus sayqallangan.</p>
+<div class="grid grid-cols-2 gap-y-2 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">groups</span>
+<span class="text-xs text-on-surface-variant font-medium">Sig'imi: <span class="text-on-surface">500 kishi</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">payments</span>
+<span class="text-xs text-on-surface-variant font-medium">Narx: <span class="text-on-surface">450k / kishi</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">directions_car</span>
+<span class="text-xs text-on-surface-variant font-medium">Parkovka: <span class="text-on-surface">Bor</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">music_note</span>
+<span class="text-xs text-on-surface-variant font-medium">Musiqa: <span class="text-on-surface">Jonli</span></span>
+</div>
+</div>
+</div>
+<!-- 3. Full Calendar at Bottom -->
+<div class="p-6 border-t border-outline-variant/10 bg-surface-container-low/30">
+<p class="text-[11px] font-bold text-on-surface-variant mb-3 uppercase tracking-widest">Sana va vaqt tanlash (Oktyabr)</p>
+<div class="calendar-grid gap-1 mb-4">
+<!-- Week Days Header -->
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">D</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">S</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">C</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">P</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">J</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">S</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">Y</span>
+<!-- Calendar Days (1 month full) -->
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">1</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">2</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">3</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">4</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">5</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">6</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">7</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">8</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">9</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">10</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">11</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">12</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">13</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">14</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20 ring-2 ring-primary ring-offset-1">15</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">16</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">17</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">18</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">19</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">20</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">21</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">22</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">23</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">24</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">25</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">26</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">27</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">28</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">29</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">30</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">31</button>
+</div>
+<!-- Time Slots -->
+<div class="flex gap-2 mb-4">
+<button class="flex-1 py-1.5 text-[9px] font-bold border border-outline-variant rounded hover:border-primary hover:text-primary transition-all">Nahor</button>
+<button class="flex-1 py-1.5 text-[9px] font-bold bg-primary text-on-primary rounded border border-primary">Kunduz</button>
+<button class="flex-1 py-1.5 text-[9px] font-bold border border-outline-variant rounded hover:border-primary hover:text-primary transition-all">Kechga</button>
+</div>
+<!-- 6. Show Button when time selected -->
+<button class="w-full bg-primary text-on-primary py-3 rounded font-bold text-xs tracking-widest shadow-lg shadow-primary/10 hover:bg-primary/90 transition-all uppercase">So'rov yuborish</button>
+</div>
+</article>
+<!-- Card 2: Photo Studio -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(115,92,0,0.06)] group flex flex-col h-full border border-outline-variant/20">
+<div class="relative h-72 overflow-hidden bg-surface-container-highest">
+<div class="flex w-full h-full snap-x snap-mandatory overflow-x-auto no-scrollbar">
+<img class="w-full h-full object-cover snap-center" data-alt="Wedding photography portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtv1cS3fk-TtL00aZdzwkaDQrftuQpJga5QO5sd9osKbJgeW2cBDlkh5TO5efbtifd4hieQzEvc6pMT835VGKIv5FV5T69FtXeabA3XEHYsoNjUwLFrnqudBL4RGAzcFgNFdinK-gb2eQ4GVDy3DKgrIQ0lvwbwx6jOVhRZESYK4nD79xCJmf93Xfl0YJXDYxJvh4QJ7KYts70T6EqF3jby48o54PEcxzaSfnORiEwbpQ-GyERplA-VJmuOJr7C4sg9MWjZGZSCE5t"/>
+</div>
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Tasdiqlangan</div>
+</div>
+<div class="p-6 flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-headline font-bold text-on-surface">Art Vision Studio</h3>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-sm">5.0</span>
+</div>
+<button class="text-[10px] text-primary underline underline-offset-2 font-medium">Sharh qoldirish</button>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm flex items-center gap-1 mb-4">
+<span class="material-symbols-outlined text-xs">camera</span>
+            Professional foto va video xizmatlari
+          </p><p class="text-on-surface-variant/80 text-xs italic leading-relaxed mb-4 font-serif">Sizning eng samimiy his-tuyg'ularingizni badiiy mahorat bilan muhrlaymiz. Har bir kadr — bu yashirin hikoya va nafis san'at asari.</p>
+<div class="grid grid-cols-2 gap-y-2 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">movie</span>
+<span class="text-xs text-on-surface-variant font-medium">Format: <span class="text-on-surface">4K Video</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">schedule</span>
+<span class="text-xs text-on-surface-variant font-medium">Davomiyligi: <span class="text-on-surface">Kun davomida</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">diamond</span>
+<span class="text-xs text-on-surface-variant font-medium">Paket: <span class="text-on-surface">Luks</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">sell</span>
+<span class="text-xs text-on-surface-variant font-medium">Narx: <span class="text-on-surface">12mln UZS</span></span>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-outline-variant/10 bg-surface-container-low/30">
+<p class="text-[11px] font-bold text-on-surface-variant mb-3 uppercase tracking-widest">Sana tanlash (Oktyabr)</p>
+<div class="calendar-grid gap-1 mb-4">
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">D</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">S</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">C</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">P</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">J</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">S</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">Y</span>
+<!-- Same calendar logic -->
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">1</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">2</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">3</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">4</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">5</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">6</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">7</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">8</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">9</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">10</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">11</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">12</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">13</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">14</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">15</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">16</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">17</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">18</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">19</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">20</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">21</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">22</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">23</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">24</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">25</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">26</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">27</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">28</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">29</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">30</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">31</button>
+</div>
+<div class="flex gap-2 mb-4">
+<button class="flex-1 py-1.5 text-[9px] font-bold border border-outline-variant rounded hover:border-primary hover:text-primary transition-all">To'liq kun</button>
+</div>
+<p class="text-[10px] text-on-surface-variant italic text-center mb-4">Iltimos, avval sanani tanlang</p>
+</div>
+</article>
+<!-- Card 3: Decor -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_12px_40px_rgba(115,92,0,0.06)] group flex flex-col h-full border border-outline-variant/20">
+<div class="relative h-72 overflow-hidden bg-surface-container-highest">
+<div class="flex w-full h-full snap-x snap-mandatory overflow-x-auto no-scrollbar">
+<img class="w-full h-full object-cover snap-center" data-alt="Luxurious wedding table decor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBU9chaQ4gArY-3qNeNXNMCCIQUStB0FLLrgOiPKM8qH2jt8JMbZfWNRm6kCns9DaYShMaLvBJuOLj5WVnUp9mbw2SuhfZPkP7UXVKO7xV11blzeXfD9cYIyHBHeUXv2WpNe-bcteqjx_LuuIbDN4QBXiL0SP08dVIIEsVAQZTxYWud7gOnSPVOAtwp2rlPDpdAQN5S0SwSCnlkf2ylEFxMt5rginYnuUR9khUO-ohRYhpNYPSnX2fdK4q_iUerrUwSCr61JLrHxan"/>
+</div>
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Yangi</div>
+</div>
+<div class="p-6 flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-xl font-headline font-bold text-on-surface">Zarina Flowers &amp; Decor</h3>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-sm">4.8</span>
+</div>
+<button class="text-[10px] text-primary underline underline-offset-2 font-medium">24 ta sharh</button>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm flex items-center gap-1 mb-4">
+<span class="material-symbols-outlined text-xs">local_florist</span>
+            Eksklyuziv floristika va bezatish
+          </p><p class="text-on-surface-variant/80 text-xs italic leading-relaxed mb-4 font-serif">Tabiiy gullarning nafis ifori va zamonaviy dizayn uyg'unligi. Biz sizning orzuingizdagi ertaknamo muhitni haqiqatga aylantiramiz.</p>
+<div class="grid grid-cols-2 gap-y-2 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">palette</span>
+<span class="text-xs text-on-surface-variant font-medium">Uslub: <span class="text-on-surface">Modern</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">eco</span>
+<span class="text-xs text-on-surface-variant font-medium">Gullar: <span class="text-on-surface">Tabiiy</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">construction</span>
+<span class="text-xs text-on-surface-variant font-medium">O'rnatish: <span class="text-on-surface">Tekin</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">sell</span>
+<span class="text-xs text-on-surface-variant font-medium">O'rtacha: <span class="text-on-surface">25mln UZS</span></span>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-outline-variant/10 bg-surface-container-low/30">
+<p class="text-[11px] font-bold text-on-surface-variant mb-3 uppercase tracking-widest">Sana tanlash (Oktyabr)</p>
+<div class="calendar-grid gap-1 mb-4">
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">D</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">S</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">C</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">P</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">J</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">S</span>
+<span class="text-[8px] font-bold text-center text-on-surface-variant/60">Y</span>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">1</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">2</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">3</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">4</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">5</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">6</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">7</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">8</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">9</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">10</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">11</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">12</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">13</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-error/10 text-error border border-error/20 cursor-not-allowed">14</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">15</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">16</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-secondary-container/40 text-on-secondary-container border border-secondary/20">17</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">18</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">19</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">20</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">21</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">22</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">23</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">24</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">25</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">26</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">27</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">28</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">29</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">30</button>
+<button class="aspect-square flex items-center justify-center text-[10px] rounded bg-tertiary-container/40 text-on-tertiary-container border border-tertiary/20">31</button>
+</div>
+<div class="flex gap-2 mb-4">
+<button class="flex-1 py-1.5 text-[9px] font-bold border border-outline-variant rounded">Nahor</button>
+<button class="flex-1 py-1.5 text-[9px] font-bold border border-outline-variant rounded">Kunduz</button>
+<button class="flex-1 py-1.5 text-[9px] font-bold border border-outline-variant rounded">Kechga</button>
+</div>
+<p class="text-[10px] text-on-surface-variant italic text-center mb-4">Band qilish mumkin</p>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex justify-center">
+<button class="group flex items-center gap-4 text-primary font-bold">
+<span class="h-[1px] w-12 bg-outline-variant group-hover:w-20 transition-all"></span>
+<span class="text-sm tracking-[0.2em] uppercase">Ko'proq yuklash</span>
+<span class="h-[1px] w-12 bg-outline-variant group-hover:w-20 transition-all"></span>
+</button>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="w-full border-t border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 mt-20">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-12 py-10 gap-6 max-w-7xl mx-auto">
+<div class="text-xl font-serif text-amber-700 dark:text-amber-500">To’yimBor</div>
+<div class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight Inter">
+        © 2024 To’yimBor. Digital Concierge for Luxury Weddings.
+      </div>
+<div class="flex gap-6">
+<a class="text-stone-400 dark:text-stone-500 hover:text-amber-600 transition-all text-sm font-sans" href="#">Maxfiylik siyosati</a>
+<a class="text-stone-400 dark:text-stone-500 hover:text-amber-600 transition-all text-sm font-sans" href="#">Foydalanish shartlari</a>
+<a class="text-stone-400 dark:text-stone-500 hover:text-amber-600 transition-all text-sm font-sans" href="#">Biz bilan bog'lanish</a>
+</div>
+</div>
+</footer>
+<!-- Bottom Navigation (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 glass-nav border-t-0 py-3 px-6 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Asosiy</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-amber-700">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[10px] font-bold">Katalog</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-[10px] font-medium">Bronlar</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profil</span>
+</button>
+</div>
+</body></html>

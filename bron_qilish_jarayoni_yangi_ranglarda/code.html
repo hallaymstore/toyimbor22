@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>To’yimBor - Bron qilish</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#8b8d81",
+                    "surface-container-low": "#faf9f6",
+                    "on-primary": "#ffffff",
+                    "surface": "#fcfbf7",
+                    "on-surface-variant": "#494844",
+                    "surface-container-high": "#f0ede4",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "on-primary-fixed": "#002117",
+                    "tertiary-container": "#f6e4a0",
+                    "primary-container": "#0b513d",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#4e3d00",
+                    "primary": "#065f46",
+                    "on-primary-fixed-variant": "#0b513d",
+                    "surface-tint": "#b89b4a",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fcfbf7",
+                    "inverse-on-surface": "#f5f0e1",
+                    "secondary-fixed": "#ffdea4",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#201c13",
+                    "secondary": "#b89b4a",
+                    "on-secondary-fixed": "#261900",
+                    "primary-fixed": "#d1fae5",
+                    "surface-container-highest": "#e8e3d5",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#a7f3d0",
+                    "on-secondary-fixed-variant": "#5a4312",
+                    "tertiary": "#856a16",
+                    "on-secondary-container": "#795f2b",
+                    "secondary-container": "#fef3c7",
+                    "inverse-surface": "#363022",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "background": "#fcfbf7",
+                    "inverse-primary": "#a7f3d0",
+                    "on-primary-container": "#ecfdf5",
+                    "surface-container": "#f5f2e8",
+                    "on-background": "#201c13",
+                    "tertiary-fixed": "#ffe088",
+                    "surface-variant": "#ede8da",
+                    "surface-dim": "#e2decb",
+                    "on-tertiary-fixed": "#241a00",
+                    "outline-variant": "#d1cfc1",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .heritage-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l2.5 7.5L40 10l-7.5 2.5L30 20l-2.5-7.5L20 10l7.5-2.5L30 0z' fill='%23b89b4a' fill-opacity='0.08'/%3E%3C/svg%3E");
+        }
+        .gold-shimmer {
+            background: linear-gradient(135deg, #b89b4a 0%, #fef3c7 50%, #b89b4a 100%);
+            background-size: 200% 200%;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-emerald-950/85 backdrop-blur-xl border-b border-white/10 docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-serif font-bold bg-gradient-to-tr from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent">To’yimBor</div>
+<nav class="hidden md:flex items-center space-x-8 font-serif text-emerald-50 tracking-tight">
+<a class="text-emerald-100/80 hover:text-amber-200 transition-colors" href="#">Bosh sahifa</a>
+<a class="text-emerald-100/80 hover:text-amber-200 transition-colors" href="#">Katalog</a>
+<a class="text-amber-400 border-b-2 border-amber-400 pb-1 font-semibold" href="#">Bronlarim</a>
+<a class="text-emerald-100/80 hover:text-amber-200 transition-colors" href="#">AI Tavsiya</a>
+</nav>
+<div class="flex items-center space-x-4 text-amber-400">
+<button class="hover:bg-white/5 transition-all duration-300 p-2 rounded-full scale-95 active:opacity-80">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-white/5 transition-all duration-300 p-2 rounded-full scale-95 active:opacity-80">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="min-h-screen relative flex items-center justify-center py-12 px-4 heritage-pattern bg-[#fdfcf7]">
+<!-- Multi-Step Booking Container -->
+<div class="w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-[0_20px_50px_-12px_rgba(184,155,74,0.15)] overflow-hidden flex flex-col md:flex-row min-h-[500px] border border-secondary/10">
+<!-- Left Side: Editorial Context -->
+<div class="md:w-5/12 relative hidden md:block">
+<img alt="Elegant Wedding Ceremony" class="absolute inset-0 w-full h-full object-cover" data-alt="Luxurious Uzbek wedding hall interior with velvet drapes, gold ornaments, and soft warm ambient lighting on white floral arrangements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvUQfox2a3C9EVcbflRo7nEahly_j1fCMh1Dn0I6pnIbpKzq50Y7vzMhhVLk6Pr5mtnjkIuBgXHkuuZGBheig7NWvk8_Pvd-A-iM34DAeQ1pq-J3F0fjgn_C8T_FIXR27V_7ZDxWG4TUOUOmWrMUBXHmBp3Z-yEiOXbr8VnWTrzEt-SqMsMDRrjXflI70eTnixumKJJejvaa1CokyCP9zohv3eUBUZxto-f-Q7XzDCGmHWsNjklzMiY3CeIagrhZik1qwXiqorY4Rt"/>
+<div class="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 text-on-primary">
+<h2 class="font-headline text-2xl mb-2 text-amber-200">Unutilmas lahzalar</h2>
+<p class="text-sm opacity-90 leading-relaxed font-body text-emerald-50">Sizning baxtli kuningiz uchun eng sara maskanlar va xizmatlar.</p>
+</div>
+</div>
+<!-- Right Side: Flow Content -->
+<div class="flex-1 p-8 md:p-12 flex flex-col justify-center bg-white">
+<!-- Progress Indicator -->
+<div class="flex space-x-2 mb-12">
+<div class="h-1.5 flex-1 bg-secondary rounded-full shadow-sm"></div>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<!-- Step 1: Phone Number -->
+<section class="space-y-8 animate-fade-in" id="step-1">
+<div class="space-y-3">
+<span class="font-label text-[11px] tracking-[0.25em] uppercase text-secondary font-bold">QADAM 1 / 3</span>
+<h1 class="font-headline text-3xl text-primary leading-tight font-bold">Telefon raqamingizni kiriting</h1>
+<p class="font-body text-on-surface-variant text-sm leading-relaxed">Siz bilan bog'lanishimiz uchun amaldagi raqamingizni kiriting.</p>
+</div>
+<div class="space-y-6">
+<div class="relative group">
+<label class="font-label text-xs text-secondary mb-2 block font-semibold uppercase tracking-wider">Telefon raqami</label>
+<div class="flex items-center bg-secondary-container/30 border-b-2 border-outline-variant focus-within:border-secondary transition-all duration-300 px-4 py-4 rounded-t-xl">
+<span class="text-primary font-bold mr-2 text-lg">+998</span>
+<input class="bg-transparent border-none focus:ring-0 p-0 w-full text-lg tracking-wider placeholder:text-outline-variant/60 text-primary font-semibold" placeholder="90 123 45 67" type="tel"/>
+<span class="material-symbols-outlined text-secondary" data-icon="smartphone">smartphone</span>
+</div>
+</div>
+<button class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 text-on-primary py-4 px-8 rounded-xl font-bold tracking-wider flex justify-between items-center group hover:shadow-lg hover:shadow-emerald-900/20 hover:-translate-y-0.5 transition-all duration-300">
+<span>SMS KODNI YUBORISH</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="text-[10px] text-center text-on-surface-variant/60 uppercase tracking-widest font-medium">Xavfsiz va maxfiy ulanish</p>
+</div>
+</section>
+<!-- Step 2: SMS Verification (Hidden) -->
+<section class="hidden space-y-8 animate-fade-in" id="step-2">
+<div class="space-y-3">
+<span class="font-label text-[11px] tracking-[0.25em] uppercase text-secondary font-bold">QADAM 2 / 3</span>
+<h1 class="font-headline text-3xl text-primary leading-tight font-bold">SMS kodni kiriting</h1>
+<p class="font-body text-on-surface-variant text-sm">+998 90 *** ** 67 raqamiga yuborilgan kodni kiriting.</p>
+</div>
+<div class="space-y-8">
+<div class="flex justify-between gap-3">
+<input class="w-full h-16 text-center text-2xl font-bold bg-secondary-container/20 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl transition-all" maxlength="1" type="text"/>
+<input class="w-full h-16 text-center text-2xl font-bold bg-secondary-container/20 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl transition-all" maxlength="1" type="text"/>
+<input class="w-full h-16 text-center text-2xl font-bold bg-secondary-container/20 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl transition-all" maxlength="1" type="text"/>
+<input class="w-full h-16 text-center text-2xl font-bold bg-secondary-container/20 border-b-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl transition-all" maxlength="1" type="text"/>
+</div>
+<div class="flex flex-col gap-5">
+<button class="w-full bg-gradient-to-r from-emerald-800 to-emerald-700 text-on-primary py-4 px-8 rounded-xl font-bold tracking-wider hover:shadow-lg transition-all duration-300">
+                            TASDIQLASH
+                        </button>
+<button class="text-sm text-secondary font-bold hover:text-primary transition-colors text-center uppercase tracking-widest">
+                            Qayta yuborish (0:59)
+                        </button>
+</div>
+</div>
+</section>
+<!-- Step 3: Success State (Hidden) -->
+<section class="hidden flex flex-col items-center text-center space-y-6 animate-fade-in py-8" id="step-3">
+<div class="w-24 h-24 bg-secondary-container/50 rounded-full flex items-center justify-center mb-2 border-4 border-white shadow-xl shadow-secondary/10">
+<span class="material-symbols-outlined text-secondary text-5xl" data-icon="celebration">celebration</span>
+</div>
+<div class="space-y-3">
+<h1 class="font-headline text-3xl text-primary font-bold">Muborak bo'lsin!</h1>
+<p class="font-body text-on-surface-variant max-w-[280px] mx-auto leading-relaxed">Sizning so’rovingiz qabul qilindi. Admin tez orada siz bilan bog’lanadi.</p>
+</div>
+<button class="px-10 py-4 text-primary bg-secondary-container hover:bg-secondary/20 rounded-xl transition-all font-bold tracking-wide border border-secondary/20">
+                    ASOSIY SAHIFAGA QAYTISH
+                </button>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-emerald-950 text-emerald-100/60 font-sans leading-relaxed full-width relative border-t border-amber-500/10">
+<div class="w-full px-8 py-16 flex flex-col md:flex-row justify-between items-center gap-8 max-w-screen-2xl mx-auto">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="font-serif text-2xl text-amber-400 font-bold">To’yimBor</div>
+<p class="text-sm max-w-xs text-center md:text-left text-emerald-100/40">Eng baxtli kunlaringiz uchun mukammal hamroh.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-10">
+<a class="hover:text-amber-400 text-sm font-medium tracking-wide transition-all duration-200" href="#">Biz haqimizda</a>
+<a class="hover:text-amber-400 text-sm font-medium tracking-wide transition-all duration-200" href="#">Xizmatlar</a>
+<a class="hover:text-amber-400 text-sm font-medium tracking-wide transition-all duration-200" href="#">Bog'lanish</a>
+<a class="hover:text-amber-400 text-sm font-medium tracking-wide transition-all duration-200" href="#">Maxfiylik siyosati</a>
+</div>
+<div class="text-[10px] uppercase tracking-widest font-bold opacity-30">
+            © 2024 To’yimBor. Barcha huquqlar himoyalangan.
+        </div>
+</div>
+</footer>
+<!-- Security Badge Section -->
+<div class="flex justify-center py-10 gap-10 opacity-30 grayscale hover:grayscale-0 hover:opacity-60 transition-all duration-500 bg-[#fdfcf7]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xl text-secondary" data-icon="verified_user">verified_user</span>
+<span class="text-[10px] uppercase tracking-[0.2em] font-black text-primary">Xavfsiz To'lov</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-xl text-secondary" data-icon="encrypted">encrypted</span>
+<span class="text-[10px] uppercase tracking-[0.2em] font-black text-primary">SSL Himoyalangan</span>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Xizmatlarni Tahrirlash | Silk Road Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#735c00",
+                        "on-primary-fixed-variant": "#574500",
+                        "on-primary-container": "#554300",
+                        "outline": "#7f7663",
+                        "on-tertiary-fixed-variant": "#0b513d",
+                        "surface-container": "#eeeeed",
+                        "background": "#faf9f8",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface": "#faf9f8",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary-container": "#074f3c",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary": "#2b6954",
+                        "surface-bright": "#faf9f8",
+                        "surface-container-high": "#e9e8e7",
+                        "primary-fixed": "#ffe088",
+                        "primary-container": "#d4af37",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#775a19",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#b0f0d6",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#002117",
+                        "tertiary-container": "#81bfa7",
+                        "inverse-primary": "#e9c349",
+                        "tertiary-fixed-dim": "#95d3ba",
+                        "outline-variant": "#d0c5af",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f4f3f2",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dadad9",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#ffdea5",
+                        "on-primary-fixed": "#241a00",
+                        "surface-container-highest": "#e3e2e1",
+                        "secondary-container": "#fed488",
+                        "on-surface-variant": "#4d4635",
+                        "surface-tint": "#735c00",
+                        "surface-variant": "#e3e2e1",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#e9c349",
+                        "on-secondary-fixed": "#261900",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .luxury-gradient {
+            background: linear-gradient(135deg, #735c00 0%, #d4af37 100%);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface">
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed inset-y-0 left-0 z-50 flex flex-col h-full py-6 bg-stone-50 dark:bg-stone-950 h-screen w-64 border-r-0 font-inter text-sm font-medium">
+<div class="px-6 mb-10">
+<h1 class="font-noto-serif italic font-bold text-amber-800 dark:text-amber-400 text-xl">Silk Hall Admin</h1>
+<p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Premium Vendor</p>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto no-scrollbar">
+<a class="flex items-center px-4 py-3 rounded-lg text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="event_available">event_available</span>
+<span>Bookings</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="calendar_month">calendar_month</span>
+<span>Calendar</span>
+</a>
+<!-- Active Item: Services -->
+<a class="flex items-center px-4 py-3 rounded-lg text-amber-800 dark:text-amber-400 font-semibold border-r-2 border-amber-600 bg-stone-100 dark:bg-stone-900" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dry_cleaning">dry_cleaning</span>
+<span>Services</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-6 pt-6">
+<div class="flex items-center gap-3 p-3 rounded-xl bg-stone-100/50">
+<div class="w-10 h-10 rounded-full overflow-hidden">
+<img alt="Wedding Hall Owner Profile" data-alt="portrait of a professional wedding venue manager in a tailored suit smiling confidently" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANJnd4Mt9bpKfSDXtOX-28kDFYAlpDOKvskzY9SAdRFrijgNFUBgp04jk5LRR5jhnefrc4JPk6dA_7iMhAxYaE2MEsooEzXB4t_CqXMqYpe_caHaWTU-81210yOYThfdjQwokxdsYM0hlcnaqz_kJHbsgsysMLwu13_4-p9Mt-htqqRJWD1MIIEB1Gekr2_CuwYLHnV3eBo21XrNBu43CIJacWpInp0qL1QgTNtTTHgFF4fEmmGjtojAQtsZfWNSaUKP2OI4d1YXxx"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-stone-900">John Doe</span>
+<span class="text-[10px] text-stone-500 italic">Silk Hall Owner</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between px-8 w-full sticky top-0 z-40 bg-white/80 dark:bg-stone-950/80 backdrop-blur-xl h-16 shadow-sm shadow-amber-900/5">
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-400">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</span>
+<input class="bg-stone-50 border-none rounded-lg text-xs py-2 pl-10 pr-4 w-64 focus:ring-1 focus:ring-amber-500/30" placeholder="Qidiruv..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-stone-600 dark:text-stone-400 hover:text-amber-600 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-stone-600 dark:text-stone-400 hover:text-amber-600 transition-all">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+<div class="h-6 w-px bg-stone-200"></div>
+<span class="font-noto-serif text-lg text-stone-900 dark:text-stone-100">Silk Road Admin</span>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 max-w-7xl mx-auto w-full">
+<div class="mb-10 flex items-end justify-between">
+<div>
+<h2 class="font-headline text-4xl font-bold text-on-surface tracking-tight mb-2">Xizmatlarni Tahrirlash</h2>
+<p class="text-on-surface-variant italic font-headline text-lg">“Oltin Voha” To’yxonasi tafsilotlari</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 text-primary font-medium hover:bg-surface-container-high transition-all rounded">Bekor qilish</button>
+<button class="luxury-gradient px-8 py-2.5 text-on-primary font-semibold shadow-xl shadow-primary/20 rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="save">save</span>
+                            Saqlash
+                        </button>
+</div>
+</div>
+<!-- Bento Grid Layout for Form -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Core Info & Gallery -->
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<!-- Gallery Section -->
+<section class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<h3 class="font-headline text-xl font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="photo_library">photo_library</span>
+                                Galereya
+                            </h3>
+<div class="grid grid-cols-3 gap-4">
+<div class="relative group aspect-square rounded-lg overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="opulent ballroom interior with crystal chandeliers and silk draped tables in golden hues" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEY6ZFeZwlFQero4_k-UnCpu2hJsktnYGnbxYZu4eI8VkfwO7PIJfdF_YuU-VSUeUdttTZoMezZEhxiKmBjKbY6WCI6xNR1HVzgkYtybjV-JU071RDQi2oE8FjfiCWCArisWC1cxvi3fcuFNAr5tQzqkhIf7HBZJRH5mwsx27Uk0mt9rGlsRmQ1luSBcxFxmy5TKceo2s-Iqt5sV_2O-QbgNAZPP4qRTOdQyN7PgVtaI60aGsZ9BmzY3T6yRvUuEAY43z_3h1EYHkk"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="p-2 bg-white rounded-full text-error"><span class="material-symbols-outlined" data-icon="delete">delete</span></button>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="close up of luxury wedding dinner table setup with gold cutlery and elegant floral centerpiece" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiPrZMNBCx_zq1h5-zfUW-L0jRBq8-aW9mR4OPFF1ndkDGxeFdePMFKpNcn04RN7nUcYfKfhx9P9UQlNGB9wdWNhgqwwTiaVMgGwLnMsjv_E72C-whxMoGxnb5_fj-yeys5BIUVQZiQRxcEK8H7f6eq1QJFgyVPJ3ga3XOy1Iqbrik_tlsOoy_kFMicLb7vDglFJD4MM3o9CBLZuem50UweXB_wfrYteBxt266gR5oqPM9F7bHpwtfyqBwRbksInXQBtQMDs-1QlC-"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="p-2 bg-white rounded-full text-error"><span class="material-symbols-outlined" data-icon="delete">delete</span></button>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="wide shot of a grand event entrance with arched silk curtains and soft warm spotlighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBds0OY7WhCAGE98EMsDJ_dH_5mrxZqAOY2Mudbu83p0FGx7cbVokA6WxPoXmirUmxL1RCw1PO4to3xGJSn41t5oDAu5dHUXNLpMNP-xo33GoPpCwNqJ1f_r-dkDgJg7BeHY-PR8B6BfFABsdqwiogv9bmrUWIKWcYoIRTeaLT1sUlYrTk1Zl1-Sn7M0tMEZsK1VHyV7NkaQ1yNVqmMHOoXoiFcxIfYFNu59j0BQuk2rmd2leBhLkIL-lwRNj-obegdtoTV1k8c7jNz"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="p-2 bg-white rounded-full text-error"><span class="material-symbols-outlined" data-icon="delete">delete</span></button>
+</div>
+</div>
+<button class="aspect-square border-2 border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-3xl mb-2" data-icon="add_a_photo">add_a_photo</span>
+<span class="text-xs font-medium">Rasm yuklash</span>
+</button>
+</div>
+</section>
+<!-- Description Section -->
+<section class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<h3 class="font-headline text-xl font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="description">description</span>
+                                Tavsif
+                            </h3>
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">To'yxona nomi</label>
+<input class="w-full border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-3 font-headline text-2xl text-on-surface bg-transparent" type="text" value="Oltin Voha Premium Hall"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Batafsil ma'lumot</label>
+<textarea class="w-full border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 bg-transparent resize-none leading-relaxed" rows="6">Bizning to'yxonamiz 15 yillik tajribaga ega bo'lib, eng nafis marosimlarni o'tkazish uchun mo'ljallangan. Silk va tilla ranglar bilan bezatilgan interyerimiz sizning hayotingizdagi eng unutilmas kunni yaratib beradi. Oshpazlarimiz milliy va Yevropa taomlarini mahorat bilan tayyorlashadi.</textarea>
+</div>
+</div>
+</section>
+<!-- Location Section -->
+<section class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+<h3 class="font-headline text-xl font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="map">map</span>
+                                Manzil va Geo-lokatsiya
+                            </h3>
+<div class="mb-4">
+<input class="w-full border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 text-sm bg-transparent" type="text" value="Toshkent shahri, Yunusobod tumani, Bog'ishamol ko'chasi, 12-uy"/>
+</div>
+<div class="h-64 bg-surface-container rounded-lg overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="clean simplified map illustration with a golden location pin in the center of an urban grid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk2xxKvY42gzZMwcbbdtekY0k2Mv4uFKM1OC3Q0HXiOlaJtcTfJjbvXSlDTLUt-C-6j-OLvyBAEZPxZkORw0v5SgkhRR6gIh34GHUQ4HhP_kE5-nmeN62duJHG5G9docqlpsgcG_l1CoDV4mSvWuTuydJ5CqiqOtTDmOasZi1AFypEQboCrBnmorWTQ0r_wAE6poc9igeO1WRT9y1L93B22DyDeSNmJbkEHOwaj9epxGzJJ9GOd5uz1VBCezHWN0EcxVv_Zjw7RkFf"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</div>
+</div>
+<div class="absolute bottom-4 right-4 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white shadow-md rounded flex items-center justify-center text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" data-icon="add">add</span></button>
+<button class="w-10 h-10 bg-white shadow-md rounded flex items-center justify-center text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" data-icon="remove">remove</span></button>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Specs & Options -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<!-- Pricing & Capacity -->
+<section class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<h3 class="font-headline text-xl font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="analytics">analytics</span>
+                                Sig'im va Narx
+                            </h3>
+<div class="space-y-6">
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Bir kishi uchun narx (UZS)</label>
+<div class="flex items-center">
+<span class="text-primary font-bold mr-2 text-lg">💰</span>
+<input class="w-full border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-bold text-2xl text-on-surface bg-transparent" type="number" value="250000"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Maksimal sig'im (Kishi)</label>
+<div class="flex items-center">
+<span class="text-primary font-bold mr-2 text-lg">👥</span>
+<input class="w-full border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-bold text-2xl text-on-surface bg-transparent" type="number" value="500"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Amenities -->
+<section class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<h3 class="font-headline text-xl font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" data-icon="check_circle">check_circle</span>
+                                Qulayliklar
+                            </h3>
+<div class="grid grid-cols-1 gap-4">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center">
+<input checked="" class="peer h-5 w-5 rounded border-outline-variant text-tertiary focus:ring-tertiary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Tekin Wi-Fi</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center">
+<input checked="" class="peer h-5 w-5 rounded border-outline-variant text-tertiary focus:ring-tertiary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Katta Avtoturargoh</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center">
+<input checked="" class="peer h-5 w-5 rounded border-outline-variant text-tertiary focus:ring-tertiary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Konditsioner (AC)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center">
+<input class="peer h-5 w-5 rounded border-outline-variant text-tertiary focus:ring-tertiary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Maxsus Dekoratsiya</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center">
+<input checked="" class="peer h-5 w-5 rounded border-outline-variant text-tertiary focus:ring-tertiary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Jonli Musiqa</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="relative flex items-center">
+<input class="peer h-5 w-5 rounded border-outline-variant text-tertiary focus:ring-tertiary/20" type="checkbox"/>
+</div>
+<span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Bolalar maydonchasi</span>
+</label>
+</div>
+</section>
+<!-- Status & Visibility -->
+<section class="bg-surface-container p-6 rounded-xl border border-outline-variant/10">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Holat</span>
+<span class="bg-tertiary/10 text-tertiary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Faol</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-6 leading-relaxed">Sizning xizmatingiz hozirda barcha foydalanuvchilar uchun qidiruv tizimida ko'rinadi.</p>
+<button class="w-full py-3 bg-error/10 text-error font-semibold rounded-lg hover:bg-error hover:text-on-error transition-all text-sm">
+                                Xizmatni to'xtatish
+                            </button>
+</section>
+</div>
+</div>
+<!-- Footer spacer -->
+<div class="h-16"></div>
+</div>
+</main>
+</div>
+</body></html>

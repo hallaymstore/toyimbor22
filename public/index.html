@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To'yimBor | Premium wedding marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body class="page-body" data-page="home">
+    <header class="site-header">
+      <div class="shell site-header__inner">
+        <a class="brand" href="/">To'yimBor</a>
+        <nav class="site-nav">
+          <a class="site-nav__link is-active" href="/">Bosh sahifa</a>
+          <a class="site-nav__link" href="/catalog">Katalog</a>
+          <a class="site-nav__link" href="/dashboard">Bronlarim</a>
+          <a class="site-nav__link" href="/profile">Profil</a>
+        </nav>
+        <div class="site-header__actions">
+          <a class="button button--ghost button--small" href="/admin">Vendor panel</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero shell">
+        <div class="hero__copy">
+          <p class="eyebrow">Modern Silk Road Elegance</p>
+          <h1 class="hero__title">
+            To'yingizni <span>stresssiz</span> rejalashtiring
+          </h1>
+          <p class="hero__text">
+            Stitch maketlaridan moslashtirilgan premium marketplace: maskanlar,
+            dekor, foto-video va vendor boshqaruvi bitta tizimda.
+          </p>
+          <form id="home-search-form" class="glass-card search-panel search-panel--hero">
+            <label class="field">
+              <span>Kalit so'z</span>
+              <input name="q" type="text" placeholder="Masalan: restoran, dekor, planner" />
+            </label>
+            <label class="field">
+              <span>Shahar</span>
+              <input name="city" type="text" placeholder="Toshkent" value="Toshkent" />
+            </label>
+            <label class="field">
+              <span>Kategoriya</span>
+              <select name="category">
+                <option value="">Barchasi</option>
+                <option>To'yxona</option>
+                <option>Dekor</option>
+                <option>Foto & Video</option>
+                <option>Catering</option>
+                <option>Tashkilotchi</option>
+              </select>
+            </label>
+            <button class="button button--primary" type="submit">Katalogni ochish</button>
+          </form>
+          <div class="hero__actions">
+            <a class="button button--primary" href="/catalog">Xizmatlarni ko'rish</a>
+            <a class="button button--ghost" href="/dashboard">Shaxsiy kabinet</a>
+          </div>
+        </div>
+        <div class="hero__visual">
+          <div class="hero__frame hero__frame--back"></div>
+          <div class="hero__frame hero__frame--front">
+            <img
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0wsUBro6agLh-YFlMR6wHvRLL-a40KnFZKvGsaqkZgviDqWSPQkl6l4HJcRs3Oiiu0XtGpz0sYBJ1rA5a1a5lmR98JwiGYvviu0Z4oQVaaaLz53jBXh46phKjJvWWrrH03ZgDz2xbnutX92u6OTCynON6yaimV_Y_Sb3tbgLkETlult9Brw2Cb_1IGzmdfmZ-Wt4tKmw0pQeufXJjS6UoAG44VgeCJVozSY37U_Jj_T8a1Ddd3iu2zSEn5mX_8uUsDtOXiXnXz_Yr"
+              alt="Premium wedding hall"
+            />
+          </div>
+          <div class="hero__detail-card glass-card">
+            <p class="eyebrow">Platforma imkoniyatlari</p>
+            <ul class="hero__detail-list">
+              <li>MongoDB asosidagi ma'lumotlar</li>
+              <li>Cloudinary galereya upload</li>
+              <li>Vendor admin paneli</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shell">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Tanlangan xizmatlar</p>
+            <h2>Premium kolleksiya</h2>
+          </div>
+          <a class="text-link" href="/catalog">Barchasini ko'rish</a>
+        </div>
+        <div id="featured-services" class="service-grid"></div>
+      </section>
+
+      <section class="section section--tinted">
+        <div class="shell">
+          <div class="section__heading">
+            <div>
+              <p class="eyebrow">Platforma statistikasi</p>
+              <h2>Real ma'lumotlar bilan ishlaydi</h2>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span>Faol xizmatlar</span>
+              <strong id="stat-services">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Mijozlar</span>
+              <strong id="stat-customers">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Bronlar</span>
+              <strong id="stat-bookings">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Tasdiqlangan tushum</span>
+              <strong id="stat-revenue">0</strong>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shell">
+        <div class="section__heading">
+          <div>
+            <p class="eyebrow">Jarayon</p>
+            <h2>Stitch dizaynidan ishlab turgan platformagacha</h2>
+          </div>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card">
+            <span class="step-card__index">01</span>
+            <h3>Qidiruv va tanlash</h3>
+            <p>Mijozlar katalogdan xizmatlarni filtrlab, mavjud kunlarni ko'radi.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-card__index">02</span>
+            <h3>SMS orqali tasdiqlash</h3>
+            <p>Bron qilish jarayoni telefon va kod verifikatsiyasi bilan ishlaydi.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-card__index">03</span>
+            <h3>Admin boshqaruvi</h3>
+            <p>Vendor panelida bronlar, kalendar, galereya va xizmat tahriri mavjud.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell site-footer__inner">
+        <div>
+          <a class="brand brand--footer" href="/">To'yimBor</a>
+          <p class="site-footer__text">Premium wedding concierge platformasi.</p>
+        </div>
+        <div class="site-footer__links">
+          <a href="/catalog">Katalog</a>
+          <a href="/dashboard">Kabinet</a>
+          <a href="/admin">Vendor panel</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

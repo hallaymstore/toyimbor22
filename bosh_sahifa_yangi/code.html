@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed": "#241a00",
+                    "error": "#ba1a1a",
+                    "background": "#faf9f8",
+                    "surface-container-low": "#f4f3f2",
+                    "on-surface-variant": "#4d4635",
+                    "on-secondary-fixed": "#261900",
+                    "outline-variant": "#d0c5af",
+                    "secondary-fixed-dim": "#e9c176",
+                    "on-primary-container": "#554300",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-surface": "#1a1c1c",
+                    "secondary-fixed": "#ffdea5",
+                    "inverse-primary": "#e9c349",
+                    "surface-container": "#eeeeed",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#e9c349",
+                    "inverse-surface": "#2f3130",
+                    "on-tertiary-container": "#074f3c",
+                    "surface": "#faf9f8",
+                    "primary": "#735c00",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#0b513d",
+                    "primary-fixed": "#ffe088",
+                    "surface-tint": "#735c00",
+                    "inverse-on-surface": "#f1f0f0",
+                    "tertiary": "#2b6954",
+                    "outline": "#7f7663",
+                    "surface-dim": "#dadad9",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#574500",
+                    "tertiary-container": "#81bfa7",
+                    "primary-container": "#d4af37",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#95d3ba",
+                    "on-secondary-container": "#785a1a",
+                    "secondary-container": "#fed488",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#775a19",
+                    "tertiary-fixed": "#b0f0d6",
+                    "on-tertiary-fixed": "#002117",
+                    "surface-container-high": "#e9e8e7",
+                    "on-background": "#1a1c1c",
+                    "surface-container-highest": "#e3e2e1",
+                    "surface-variant": "#e3e2e1",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "surface-bright": "#faf9f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-nav {
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+      .no-line-transition {
+        transition: background-color 0.3s ease;
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(115,92,0,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-serif italic text-amber-700 dark:text-amber-500">
+                To’yimBor
+            </div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-amber-800 dark:text-amber-400 font-bold border-b-2 border-amber-600 pb-1 tracking-wide Inter" href="#">Bosh sahifa</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors duration-300 tracking-wide Inter" href="#">Katalog</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors duration-300 tracking-wide Inter" href="#">Bronlarim</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors duration-300 tracking-wide Inter" href="#">AI Tavsiya</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="scale-95 active:scale-90 transition-transform text-amber-700 dark:text-amber-500">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section: Intentional Asymmetry -->
+<section class="relative px-8 py-20 max-w-7xl mx-auto overflow-hidden">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-6 z-10">
+<h1 class="font-headline text-5xl md:text-7xl leading-tight tracking-tight text-on-surface mb-6">
+                        To’yingizni <span class="italic text-primary">stresssiz</span> rejalashtiring
+                    </h1>
+<p class="text-on-surface-variant text-lg mb-10 max-w-lg leading-relaxed">
+                        Eng saralangan xizmatlar, eksklyuziv maskanlar va AI yordamida shaxsiy to'y rejangizni yarating. Silk Road an'analari zamonaviy uslubda.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[4px] font-semibold text-lg hover:shadow-lg transition-all active:scale-95">
+                            Boshlash
+                        </button>
+<button class="px-8 py-4 text-primary font-semibold text-lg hover:bg-surface-container-high rounded-[4px] transition-all">
+                            Biz haqimizda
+                        </button>
+</div>
+</div>
+<div class="lg:col-span-6 relative h-[500px] md:h-[600px]">
+<!-- Editorial Image Composition -->
+<div class="absolute inset-0 bg-surface-container-low rounded-xl overflow-hidden transform translate-x-4 translate-y-4"></div>
+<div class="absolute inset-0 rounded-xl overflow-hidden shadow-2xl">
+<img class="w-full h-full object-cover" data-alt="Luxurious Uzbek wedding banquet hall decorated with traditional embroidery, warm gold lighting, and lush floral arrangements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0wsUBro6agLh-YFlMR6wHvRLL-a40KnFZKvGsaqkZgviDqWSPQkl6l4HJcRs3Oiiu0XtGpz0sYBJ1rA5a1a5lmR98JwiGYvviu0Z4oQVaaaLz53jBXh46phKjJvWWrrH03ZgDz2xbnutX92u6OTCynON6yaimV_Y_Sb3tbgLkETlult9Brw2Cb_1IGzmdfmZ-Wt4tKmw0pQeufXJjS6UoAG44VgeCJVozSY37U_Jj_T8a1Ddd3iu2zSEn5mX_8uUsDtOXiXnXz_Yr"/>
+</div>
+<div class="absolute -bottom-10 -left-10 w-48 h-48 bg-surface-container-lowest p-4 rounded-xl shadow-xl hidden md:block">
+<img class="w-full h-full object-cover rounded-lg" data-alt="Close up of detailed traditional Uzbek bridal dress craftsmanship with gold silk threads and delicate patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWeojD-moc6ZLzqX-PsZUwqqCxG-n3nv9v0YG-uDgdMyyH-TWziWLeAiCmuRiwgk4uOT0EeyAmNOeBnt_GGUqm14W8F5-SJip_TWDFVNFUCcPUrJeIHbYeYUXnfMhx6Iht-JprY870ff_aj5AykIEvmaMM_9jsVyuCYCtGnG-U8OpYzQApUstJ_zpnW6a9Epock2Tq9pdAlkc8lymhheRDBZg37AgK5GWFEs16iZ356E4d9iLTzymdTKkfSc2nQwjHZGX3E84xiPJs"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Search Experience -->
+<section class="px-8 -mt-12 relative z-20">
+<div class="max-w-5xl mx-auto bg-surface-container-lowest p-6 rounded-xl shadow-[0_12px_40px_rgba(115,92,0,0.06)] grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+<div class="space-y-2">
+<label class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest">Kalit so'z</label>
+<input class="w-full border-b border-outline-variant bg-transparent py-2 focus:outline-none focus:border-primary transition-colors" placeholder="Masalan: Restoran" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest">Manzil</label>
+<input class="w-full border-b border-outline-variant bg-transparent py-2 focus:outline-none focus:border-primary transition-colors" placeholder="Toshkent shahri" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold text-on-surface-variant uppercase tracking-widest">Kategoriya</label>
+<select class="w-full border-b border-outline-variant bg-transparent py-2 focus:outline-none focus:border-primary transition-colors appearance-none">
+<option>Barchasi</option>
+<option>Restoranlar</option>
+<option>Foto &amp; Video</option>
+<option>Dekoratsiya</option>
+</select>
+</div>
+<button class="w-full bg-primary text-on-primary h-12 flex items-center justify-center gap-2 rounded-lg hover:bg-on-primary-container transition-all">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span>Qidirish</span>
+</button>
+</div>
+</section>
+<!-- Premium Catalog: Curated Gallery -->
+<section class="px-8 py-24 bg-surface-container-low no-line-transition mt-20">
+<div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline text-3xl md:text-4xl text-on-surface mb-2 italic">Premium xizmatlar</h2>
+<p class="text-on-surface-variant">Siz uchun maxsus saralangan eng yaxshi xizmat turlari</p>
+</div>
+<a class="text-primary font-semibold border-b border-primary pb-1" href="#">Barchasini ko'rish</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Stunning modern outdoor wedding ceremony setup at sunset with hanging crystal chandeliers and white floral path" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBePQEjca9MNBU4524kLcnJWsYVhCL0TWGgSSZEy4fSZyImX9vNgDlIzMKyilEhHm2ckSK6fUylKBZXmMo5c3nv5_0bBs-ge2kXMY6_qRfD1mYh5cfGjPNVRR-yDMLbCtUXmoOopCkJnOPjzdO8bM_TZXcZpYPg_zzFSi9R5y7zPBQlgeCrDc7CuQawnett5RtaiRm7XUm5GvBdQ9Q0Fs55FL4WUb_JiPqQj-bEu2Un4smKjuuNkHlwEyeIuSZQ58w2Ff_60c0-80yN"/>
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">
+                                Verified
+                            </div>
+</div>
+<h3 class="font-headline text-xl text-on-surface">Royal Palace Tashkent</h3>
+<p class="text-on-surface-variant text-sm mt-1">Hashtak, Toshkent • Maskan</p>
+</div>
+<!-- Card 2 (Asymmetric shift) -->
+<div class="group cursor-pointer md:mt-12">
+<div class="aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Elegant close up of a wedding cake decorated with fresh white flowers and gold leaf details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9ux-tiOJpnVlaE79_yDX7acCWhApzGDndOus7oGvkMHQMOaKOy-Us3ecP8GJKo2rIED9bnZ43HtLU0oq0ZY8slTIrps_iH-237dtjToacPN65FIjrZ6wcVwhpyaShdYm30mx_XtSfyyKNtrN3F9I_C-T0izFdkX1yMI_HmliqURxoDOFFYG_sJbQxyrIQL-1CWNmh9xPVlkKNho9TQs4BPLgIq8v9BRzxT86RCun_wlMrS_18Wyy3B8L47Be5YmAAC2ETBpx22-nr"/>
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">
+                                Premium
+                            </div>
+</div>
+<h3 class="font-headline text-xl text-on-surface">Sweet Dreams Decor</h3>
+<p class="text-on-surface-variant text-sm mt-1">Shayxontohur, Toshkent • Dekoratsiya</p>
+</div>
+<!-- Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Professional photographer capturing moments of a beautiful wedding couple in a classical European style garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFo31RLBbaLhUHLWdIBK2OY-ASSTIVu_XHrbLKS_GF7DNzX_8GN4dfv6P2ccRkUybTIVJCvshi1J24y3kmDaHUlZDPOk5oo0FFNbQVaicc9izCIQprvZ9lg8QbxThCZA-BjFwkBt_b2NDyGphFoERpLDH1pYv21mxSsMqO-RbMtvlABJQv3no3WOSWBpt62HVFOkXBl6whJc4-I75hgqA099r5YGS6Gdf-RciHaV99JgHOfZC1bMZ05N28ITygYZ9HomcaAHSevO3i"/>
+</div>
+<h3 class="font-headline text-xl text-on-surface">Ahmad Pro Media</h3>
+<p class="text-on-surface-variant text-sm mt-1">Yunusobod, Toshkent • Foto &amp; Video</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Biz Haqimizda Section -->
+<section class="px-8 py-24 bg-surface">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
+<div class="w-full md:w-1/2">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-4">
+<img class="w-full aspect-square object-cover rounded-xl" data-alt="Elegant crystal glassware on a fine dining table set for a high-end celebration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH3-K_-iSRPSq7Cv1_C9qaGYFOcrhKxiGtJEw5rheYptRGbHIn_FCX6xuexezo8w6dGraVtExeFJLLT4DYUCqAjS0Fg0c84v0uluZotP69lVGO-3HQeM0FMrOtbWZvVA-mKGYBA9Y7DJmQZUWKXGuyOSL9rnwA6N9BqnsBTr7K2y1kxSUyA1c3XORp1zykenbkY9bkn82RNuue5JFK4BX0cilfDobS4pb9KfrweGVSkFS3WZc0pFA9nxTByzsb9eVDmdscpF8o2FLg"/>
+<div class="bg-primary/5 p-8 rounded-xl aspect-square flex flex-col justify-center">
+<span class="material-symbols-outlined text-4xl text-primary mb-4" data-icon="star">star</span>
+<h4 class="font-headline text-xl mb-2">Sifat kafolati</h4>
+<p class="text-sm text-on-surface-variant">Faqatgina saralangan va tekshirilgan hamkorlar.</p>
+</div>
+</div>
+<div class="space-y-4 pt-12">
+<div class="bg-tertiary/5 p-8 rounded-xl aspect-square flex flex-col justify-center">
+<span class="material-symbols-outlined text-4xl text-tertiary mb-4" data-icon="auto_awesome">auto_awesome</span>
+<h4 class="font-headline text-xl mb-2">AI Yordamchi</h4>
+<p class="text-sm text-on-surface-variant">Sizning didingizga mos takliflar algoritmi.</p>
+</div>
+<img class="w-full aspect-square object-cover rounded-xl" data-alt="Detailed view of traditional gold wedding rings resting on a bed of white roses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBP8-YcelrX-SAhRWG9ZruqQp_CtLUM8e-qklsR8EDK3Vy2FfNb9FauleZ-u9_pxTeqh-6M2LzjxC__jIdUC-8fHLMuBajXBzf7JznnigWR-loD2hwdJzy-vh7ZgaFvj-0JDOT6IrNo-oe7_l4cvwSF5RjKelzPVRsUJigDmq-p6SqIey9RE_FOsc-T_WeY2YPPKunEJBlHzoU3J_z2l1xocwiwWQIEzk0l1zb8ZYLn2OufGzmJHzacx6JX5nrLUxARMeBN8UoWv8Y"/>
+</div>
+</div>
+</div>
+<div class="w-full md:w-1/2">
+<h2 class="font-headline text-4xl text-on-surface mb-6 italic leading-snug">
+                        Biz sizning orzuingizdagi <br/>to'yga yo'l ochamiz
+                    </h2>
+<p class="text-on-surface-variant mb-8 text-lg leading-relaxed">
+                        To'yimBor - bu shunchaki qidiruv tizimi emas. Bu sizning shaxsiy raqamli konsyerjingizdir. Biz eng murakkab jarayonlarni soddalashtirib, sizga faqatgina quvonchli lahzalarni qoldiramiz.
+                    </p>
+<ul class="space-y-4 mb-10">
+<li class="flex items-center gap-4 text-on-surface">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="verified">verified</span>
+</div>
+<span class="font-medium">Ekspertlar tomonidan tekshirilgan xizmatlar</span>
+</li>
+<li class="flex items-center gap-4 text-on-surface">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="payments">payments</span>
+</div>
+<span class="font-medium">Shaffof narxlar va xavfsiz to'lov</span>
+</li>
+<li class="flex items-center gap-4 text-on-surface">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="support_agent">support_agent</span>
+</div>
+<span class="font-medium">24/7 shaxsiy ko'mak</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-950">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-12 py-10 gap-6 max-w-7xl mx-auto">
+<div class="text-xl font-serif text-amber-700 dark:text-amber-500">
+                To’yimBor
+            </div>
+<div class="flex flex-col md:flex-row gap-6 text-center">
+<a class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight hover:text-amber-600 transition-all opacity-80 hover:opacity-100" href="#">Maxfiylik siyosati</a>
+<a class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight hover:text-amber-600 transition-all opacity-80 hover:opacity-100" href="#">Foydalanish shartlari</a>
+<a class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight hover:text-amber-600 transition-all opacity-80 hover:opacity-100" href="#">Biz bilan bog'lanish</a>
+</div>
+<p class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight opacity-80">
+                © 2024 To’yimBor. Digital Concierge for Luxury Weddings.
+            </p>
+</div>
+</footer>
+</body></html>

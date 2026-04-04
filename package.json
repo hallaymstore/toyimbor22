@@ -1,0 +1,15 @@
+{
+  "name": "toyimbor-stitch-adapted",
+  "version": "1.0.0",
+  "description": "Stitch dizaynlaridan moslashtirilgan To'yimBor wedding marketplace",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cloudinary": "^2.7.0",
+    "express": "^4.21.2",
+    "mongodb": "^6.16.0",
+    "multer": "^2.0.0"
+  }
+}

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>To’yimBor - Bronlarim va AI Tavsiya</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#241a00",
+                        "error": "#ba1a1a",
+                        "background": "#faf9f8",
+                        "surface-container-low": "#f4f3f2",
+                        "on-surface-variant": "#4d4635",
+                        "on-secondary-fixed": "#261900",
+                        "outline-variant": "#d0c5af",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-primary-container": "#554300",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "secondary-fixed": "#ffdea5",
+                        "inverse-primary": "#e9c349",
+                        "surface-container": "#eeeeed",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#e9c349",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary-container": "#074f3c",
+                        "surface": "#faf9f8",
+                        "primary": "#735c00",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#0b513d",
+                        "primary-fixed": "#ffe088",
+                        "surface-tint": "#735c00",
+                        "inverse-on-surface": "#f1f0f0",
+                        "tertiary": "#2b6954",
+                        "outline": "#7f7663",
+                        "surface-dim": "#dadad9",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#574500",
+                        "tertiary-container": "#81bfa7",
+                        "primary-container": "#d4af37",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#95d3ba",
+                        "on-secondary-container": "#785a1a",
+                        "secondary-container": "#fed488",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#775a19",
+                        "tertiary-fixed": "#b0f0d6",
+                        "on-tertiary-fixed": "#002117",
+                        "surface-container-high": "#e9e8e7",
+                        "on-background": "#1a1c1c",
+                        "surface-container-highest": "#e3e2e1",
+                        "surface-variant": "#e3e2e1",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "surface-bright": "#faf9f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 40px rgba(115, 92, 0, 0.06);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #faf9f8;
+            color: #1a1c1c;
+        }
+        h1, h2, h3, .serif-italic {
+            font-family: 'Noto Serif', serif;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(115,92,0,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-serif italic text-amber-700 dark:text-amber-500">To’yimBor</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors duration-300" href="#">Bosh sahifa</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors duration-300" href="#">Katalog</a>
+<a class="text-amber-800 dark:text-amber-400 font-bold border-b-2 border-amber-600 pb-1" href="#">Bronlarim</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors duration-300" href="#">AI Tavsiya</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-amber-700 dark:text-amber-500 scale-95 active:scale-90 transition-transform" data-icon="person">person</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-12 max-w-7xl mx-auto px-6">
+<div class="mb-12">
+<h1 class="text-4xl md:text-5xl font-headline italic tracking-tight text-on-surface">Shaxsiy Kabinet</h1>
+<p class="text-on-surface-variant font-body mt-2">To'yingizni biz bilan birga rejalashtiring.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left: Booked Services -->
+<section class="lg:col-span-5 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-headline italic text-primary">Bronlarim</h2>
+<span class="bg-surface-container-high px-3 py-1 rounded-full text-xs font-label uppercase tracking-widest text-on-surface-variant">3 ta xizmat</span>
+</div>
+<div class="space-y-4">
+<!-- Booking Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl editorial-shadow group transition-all hover:translate-y-[-2px]">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Luxury Wedding Venue" class="w-full h-full object-cover" data-alt="interior of a luxury wedding ballroom with crystal chandeliers, white floral arrangements, and warm golden lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXCtQXBYbjcSSd5bo3iD_y5le7leTA_x3aiguEMY1gjR2rIld83mTeRQE_4WiR4ydMT4RyDY0DPi0SSLQyPTcpge2IFWu8RpgYH6ht8fIqmfql_97a9JkS-3PEF_QSoxxVxVp7UYZS3khc9ukvZLQxyADe4XdTHymvLhCtIghYLX11yXWaQcG_whVeFG7uk9_6VUISBBvJxA58mg4GiBE9Uu7ETR3MMzHrW_2BDBXkYHDeKJtlOJ-BEDpRti452PMUnTWFIewUInit"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-bold font-body text-on-surface">Royal Palace Hall</h3>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">tasdiqlangan</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body mt-1">12 Sentyabr, 2024</p>
+<div class="mt-3 flex items-center gap-2 text-primary text-sm font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span>$4,500</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Booking Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl editorial-shadow group transition-all hover:translate-y-[-2px]">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Wedding Photography" class="w-full h-full object-cover" data-alt="professional photographer equipment on a rustic wooden table with soft morning light coming through a window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAA7xCa_yC7tPJh4zQsUt4cmNVvmsYc-Oci8_3-wdDBHo3SLphQzAaUOvCBo262DBozXaZF1I5sr2e3ZUy_dfuun8A6q04JKx21mg_pMcLmTrRr0Y7F3R4lqvBWomElymFpmq_q-zKEpoEA2rLVUGkoLOm0ue7LFf3ahQk9UHS1JXG6I1iR-6Bz2QX4aHlZ4uybvM3kz_Iv_BFLLMZwvypQtYycmsQkHj-Y1NymaO36s7NfTQB3jyuA6tKELt-Sh1lzk4dn5-WIQZA6"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-bold font-body text-on-surface">Dilshod Foto Stiv</h3>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">kutish</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body mt-1">12 Sentyabr, 2024</p>
+<div class="mt-3 flex items-center gap-2 text-primary text-sm font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span>$800</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Booking Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl editorial-shadow group transition-all hover:translate-y-[-2px]">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Wedding Catering" class="w-full h-full object-cover" data-alt="exquisite wedding catering appetizers served on silver platters with elegant garnish and warm bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuHrgrbIOKOn6IDoCjU5StpAO2l2-njbBuRzMzduFwRnbFO7Fl7_NU0NavMurblQoZCzRhcYx2m384XwJ24ROogzn3nxJxjKqCDiVC99wE6vJD0E5wbBXK5mVNUUDnpoi_OXQcQvEuUH0frCLXvayQ9yHs-QRgYng9oelpCdJ-_wUm_05lLJqbHW-3BCrYkE5uN6pH-whXrbRLQFr9n12Yi17fL_libbe_6d4LgC1_i3x2yPO_2StUBw1WTzpRlX0CKD8MrO_0wAdb"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-lg font-bold font-body text-on-surface">Lazzat Catering</h3>
+<span class="bg-tertiary/10 text-tertiary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">tasdiqlangan</span>
+</div>
+<p class="text-sm text-on-surface-variant font-body mt-1">12 Sentyabr, 2024</p>
+<div class="mt-3 flex items-center gap-2 text-primary text-sm font-semibold">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span>$2,200</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right: AI Recommendation Form -->
+<section class="lg:col-span-7">
+<div class="bg-surface-container-low p-8 rounded-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-9xl text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="relative z-10">
+<h2 class="text-3xl font-headline italic text-primary mb-2">AI Tavsiya</h2>
+<p class="text-on-surface-variant font-body mb-8 max-w-md">Sun'iy intellekt yordamida ideal to'y rejasini tuzing. Faqatgina parametrlarni kiriting.</p>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-1">
+<label class="text-xs font-label text-on-surface-variant uppercase tracking-wider">Manzil</label>
+<div class="relative">
+<span class="absolute left-0 bottom-2 material-symbols-outlined text-primary text-lg">location_on</span>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant pl-7 py-2 focus:ring-0 focus:border-primary transition-colors font-body text-on-surface" placeholder="Toshkent, O'zbekiston" type="text"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-xs font-label text-on-surface-variant uppercase tracking-wider">Byudjet (USD)</label>
+<div class="relative">
+<span class="absolute left-0 bottom-2 material-symbols-outlined text-primary text-lg">payments</span>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant pl-7 py-2 focus:ring-0 focus:border-primary transition-colors font-body text-on-surface" placeholder="Masalan: 10000" type="number"/>
+</div>
+</div>
+<div class="space-y-1 md:col-span-2">
+<label class="text-xs font-label text-on-surface-variant uppercase tracking-wider">To'y Sanasi</label>
+<div class="relative">
+<span class="absolute left-0 bottom-2 material-symbols-outlined text-primary text-lg">calendar_today</span>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant pl-7 py-2 focus:ring-0 focus:border-primary transition-colors font-body text-on-surface" type="date"/>
+</div>
+</div>
+</div>
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                Takliflarni shakllantirish
+                            </button>
+</form>
+</div>
+</div>
+<!-- AI Generated Packages -->
+<div class="mt-12">
+<h3 class="text-xl font-headline italic text-on-surface mb-6">Siz uchun maxsus paketlar</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Package 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden editorial-shadow flex flex-col group">
+<div class="h-48 overflow-hidden relative">
+<img alt="Premium Wedding Package" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="a curated mood board of a premium wedding featuring silk fabrics, gold jewelry, and white roses in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdZsZfMcbPhNwLY1EqQQDqvXAEcSYeCiYocvh2nDr-R5EmezHyXxZhshOr7LmVINsTfA0OvqbUhCN7aYucu_J-uEIURlxDbc9ArTy_K0LcBxFKGvhMJdwTbpdNK3IGHsdxMqSbJV5oiaOpk_lBbdywNr8ctQW7_WIAnl5Y4f40dYnb59_iW4KpPGbXNKnzpP6fUbZ_1H-bp_xOLasBwIC14EeUsOhsXXlxGXFM7MY5A5iXfClnmezGG1TsuQHUNTXbPJi-8JqsisFv"/>
+<div class="absolute top-4 right-4 bg-tertiary text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md">Premium</div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h4 class="text-lg font-bold font-body text-on-surface">Oltin Kuz To'yi</h4>
+<p class="text-sm text-on-surface-variant mt-2 line-clamp-2">Eng yaxshi restoran, professional dekor va mashhur xonandalar jamlangan eksklyuziv paket.</p>
+<div class="mt-6 pt-4 border-t border-surface-container flex justify-between items-center">
+<div class="text-primary font-bold text-lg">$12,500</div>
+<button class="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                        Batafsil <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Package 2 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden editorial-shadow flex flex-col group">
+<div class="h-48 overflow-hidden relative">
+<img alt="Modern Minimalist Package" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="minimalist wedding setup with clean lines, pampas grass, and beige color palette in an open outdoor space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_i2cMt9RtSbl3Mu131O6vVDXEEcGUHGC9t-JHUyhqYvGcEoKSAZVz9yOfMNRa3bFmBpyqF9BLQt9XG1VALQdgynHNXanFh0JHJGyUWD5xSgHJbmSoVLw5HvxoXJattbQVPnUfCCR4KS1VCcrPUHjHnmkvQT1X7oWuHJhExwniKka62ZTaKA3NJYoA-UyUmSb1nIKRbNkq1lT1jMIGUuot_MJV6r5_hmGhsnlJ57GaPWX4dCkO7ehXcci5m9c2zNoBKtkHVzNazuOK"/>
+<div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md">Optimal</div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h4 class="text-lg font-bold font-body text-on-surface">Zamonaviy Minimalizm</h4>
+<p class="text-sm text-on-surface-variant mt-2 line-clamp-2">Sifat va narxning mukammal balansi. Elegant uslubdagi marosim uchun eng maqbul tanlov.</p>
+<div class="mt-6 pt-4 border-t border-surface-container flex justify-between items-center">
+<div class="text-primary font-bold text-lg">$7,800</div>
+<button class="text-primary text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                        Batafsil <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 mt-20">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-12 py-10 gap-6 max-w-7xl mx-auto">
+<div class="text-xl font-serif text-amber-700 dark:text-amber-500">To’yimBor</div>
+<div class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight Inter text-center md:text-left">
+                © 2024 To’yimBor. Digital Concierge for Luxury Weddings.
+            </div>
+<div class="flex gap-6">
+<a class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight Inter hover:text-amber-600 transition-all opacity-80 hover:opacity-100" href="#">Maxfiylik siyosati</a>
+<a class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight Inter hover:text-amber-600 transition-all opacity-80 hover:opacity-100" href="#">Foydalanish shartlari</a>
+<a class="text-stone-400 dark:text-stone-500 font-sans text-sm tracking-tight Inter hover:text-amber-600 transition-all opacity-80 hover:opacity-100" href="#">Biz bilan bog'lanish</a>
+</div>
+</div>
+</footer>
+</body></html>

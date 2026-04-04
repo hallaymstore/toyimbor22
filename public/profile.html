@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To'yimBor | Profil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body class="page-body" data-page="profile">
+    <header class="site-header">
+      <div class="shell site-header__inner">
+        <a class="brand" href="/">To'yimBor</a>
+        <nav class="site-nav">
+          <a class="site-nav__link" href="/">Bosh sahifa</a>
+          <a class="site-nav__link" href="/catalog">Katalog</a>
+          <a class="site-nav__link" href="/dashboard">Bronlarim</a>
+          <a class="site-nav__link is-active" href="/profile">Profil</a>
+        </nav>
+        <div class="site-header__actions">
+          <a class="button button--ghost button--small" href="/admin">Vendor panel</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell page-main">
+      <section class="profile-hero">
+        <div>
+          <p class="eyebrow">Shaxsiy concierge</p>
+          <h1 id="profile-hero-name">Profil</h1>
+          <p class="page-intro__text">Profil ma'lumotlari va saralangan xizmatlar bitta joyda.</p>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="stack-card">
+          <div class="section__heading">
+            <div>
+              <p class="eyebrow">Shaxsiy ma'lumotlar</p>
+              <h2>Profil sozlamalari</h2>
+            </div>
+          </div>
+          <form id="profile-form" class="stack-form">
+            <div class="form-grid">
+              <label class="field">
+                <span>To'liq ism</span>
+                <input name="fullName" type="text" />
+              </label>
+              <label class="field">
+                <span>Telefon</span>
+                <input name="phone" type="tel" />
+              </label>
+              <label class="field">
+                <span>Email</span>
+                <input name="email" type="email" />
+              </label>
+              <label class="field">
+                <span>Shahar</span>
+                <input name="city" type="text" />
+              </label>
+              <label class="field">
+                <span>To'y sanasi</span>
+                <input name="weddingDate" type="date" />
+              </label>
+              <label class="field">
+                <span>Byudjet</span>
+                <input name="budget" type="number" />
+              </label>
+              <label class="field">
+                <span>Mehmonlar soni</span>
+                <input name="guestCount" type="number" />
+              </label>
+              <label class="field">
+                <span>Uslub</span>
+                <select name="style">
+                  <option value="zamonaviy">Zamonaviy</option>
+                  <option value="luxe">Luxe</option>
+                  <option value="milliy">Milliy</option>
+                  <option value="minimal">Minimal</option>
+                </select>
+              </label>
+            </div>
+            <button class="button button--primary button--wide" type="submit">Saqlash</button>
+          </form>
+        </div>
+
+        <div class="glass-card">
+          <div class="section__heading">
+            <div>
+              <p class="eyebrow">Saralanganlar</p>
+              <h2>Yoqqan xizmatlarim</h2>
+            </div>
+          </div>
+          <div id="favorites-grid" class="service-grid service-grid--compact"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

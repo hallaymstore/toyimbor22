@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#735c00",
+                      "on-primary-fixed-variant": "#574500",
+                      "on-primary-container": "#554300",
+                      "outline": "#7f7663",
+                      "on-tertiary-fixed-variant": "#0b513d",
+                      "surface-container": "#eeeeed",
+                      "background": "#faf9f8",
+                      "secondary-fixed-dim": "#e9c176",
+                      "surface": "#faf9f8",
+                      "on-surface": "#1a1c1c",
+                      "on-tertiary-container": "#074f3c",
+                      "on-background": "#1a1c1c",
+                      "on-secondary-container": "#785a1a",
+                      "tertiary": "#2b6954",
+                      "surface-bright": "#faf9f8",
+                      "surface-container-high": "#e9e8e7",
+                      "primary-fixed": "#ffe088",
+                      "primary-container": "#d4af37",
+                      "inverse-surface": "#2f3130",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#775a19",
+                      "inverse-on-surface": "#f1f0f0",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#b0f0d6",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed": "#002117",
+                      "tertiary-container": "#81bfa7",
+                      "inverse-primary": "#e9c349",
+                      "tertiary-fixed-dim": "#95d3ba",
+                      "outline-variant": "#d0c5af",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#f4f3f2",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#dadad9",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed": "#ffdea5",
+                      "on-primary-fixed": "#241a00",
+                      "surface-container-highest": "#e3e2e1",
+                      "secondary-container": "#fed488",
+                      "on-surface-variant": "#4d4635",
+                      "surface-tint": "#735c00",
+                      "surface-variant": "#e3e2e1",
+                      "on-primary": "#ffffff",
+                      "primary-fixed-dim": "#e9c349",
+                      "on-secondary-fixed": "#261900",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Noto Serif"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-fixed-dim">
+<div class="flex min-h-screen">
+<!-- SideNavBar - JSON Data Implementation -->
+<aside class="flex flex-col h-screen w-64 border-r-0 bg-stone-50 dark:bg-stone-950 py-6 sticky top-0">
+<div class="px-6 mb-10">
+<h1 class="font-noto-serif italic font-bold text-amber-800 dark:text-amber-400 text-2xl tracking-tight">Silk Hall Admin</h1>
+<p class="font-inter text-xs font-medium text-stone-500 uppercase tracking-widest mt-1">Premium Vendor</p>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-stone-500 dark:text-stone-400 font-inter text-sm font-medium hover:bg-stone-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Bookings (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-amber-800 dark:text-amber-400 font-semibold border-r-2 border-amber-600 font-inter text-sm bg-stone-100 dark:bg-stone-900" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="event_available">event_available</span>
+<span>Bookings</span>
+</a>
+<!-- Calendar -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-stone-500 dark:text-stone-400 font-inter text-sm font-medium hover:bg-stone-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="calendar_month">calendar_month</span>
+<span>Calendar</span>
+</a>
+<!-- Services -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-stone-500 dark:text-stone-400 font-inter text-sm font-medium hover:bg-stone-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="dry_cleaning">dry_cleaning</span>
+<span>Services</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 rounded text-stone-500 dark:text-stone-400 font-inter text-sm font-medium hover:bg-stone-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-tr from-primary to-primary-container text-on-primary rounded-lg font-medium text-sm shadow-md shadow-primary/10">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span>New Booking</span>
+</button>
+<div class="mt-6 pt-6 border-t border-outline-variant/20 flex items-center gap-3 px-2">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a professional wedding hall manager in a tailored suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkzQOjX_x3ReNX5zF0fzxaSl7hBo5Ww_zE5gJQpyCH3e3lY7UghoaaAeyOWKFX418JHmHShCrKLiUnCrOtphMU4O6Ehyqr4v5ECvl8ANwqp3rx3V3tiE9r_0okwiB5aO2RtTMAFByh5IgNxr2SZwR3VXil3zoElisBy89Fj8JFh2LELha9B48zRUB8iv_mkNmJGn4-u7_mD8CVImcNyQ1o6iV21wdleCPsvlSW1LCdkIa39B8q3KWH8mEeqfg6BEO1ulkBAGz-UCEP"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold truncate">Wedding Hall Owner</p>
+<p class="text-[10px] text-on-surface-variant truncate">admin@silkhall.uz</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar - JSON Data Implementation -->
+<header class="flex items-center justify-between px-8 w-full sticky top-0 z-40 h-16 bg-white/80 dark:bg-stone-950/80 backdrop-blur-xl shadow-sm shadow-amber-900/5">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative max-w-md w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-1 focus:ring-amber-500/30 font-inter" placeholder="Search bookings, clients..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-stone-600 dark:text-stone-400 hover:text-amber-600 transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-stone-600 dark:text-stone-400 hover:text-amber-600 transition-all">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+<img class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-container/20" data-alt="Vendor Avatar professional headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR8tEde9ffnu_5OKUc7T7mIbFL15Zqc5vdkn64gLeadfrNsk9FdHZOeAGrDGXhNs2mJKNTF8qMylIe4QpnKF_ntLskU4B9pSfyG86lAMNu0HBhj4txhhzEAoPnav9r240Euo2CXtN4C-7B0IHgrwl3RfGxU1s8bw8fhSng7xZVqvajFkOMejdw5nN9IbENBTlswoiaP-vyagEtHBEo2khjUNRbll2moCYREnikc0T9vHQ07L-cY9Du5TUYFnYpL2VH_ECw3ayX_l7q"/>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 space-y-8">
+<!-- Header & Filters -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="font-headline text-3xl font-bold text-on-surface tracking-tight">Bronlar Management</h2>
+<p class="text-on-surface-variant font-body mt-1">Manage and track all wedding hall reservations.</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="bg-surface-container-low p-1 rounded-lg flex items-center">
+<button class="px-4 py-1.5 text-xs font-semibold bg-white shadow-sm rounded-md text-primary">Barchasi</button>
+<button class="px-4 py-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors">Tasdiqlangan</button>
+<button class="px-4 py-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors">Kutishda</button>
+<button class="px-4 py-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors">Bekor qilingan</button>
+</div>
+<div class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-outline-variant/30 text-sm font-medium shadow-sm">
+<span class="material-symbols-outlined text-sm text-on-surface-variant" data-icon="calendar_today">calendar_today</span>
+<span>Oct 01 - Oct 31, 2023</span>
+</div>
+</div>
+</div>
+<!-- Bento Statistics (Brief Summary before Table) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total Bookings</p>
+<h3 class="text-2xl font-headline font-bold">128</h3>
+<div class="mt-2 text-[10px] text-tertiary flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span>
+                            +12% this month
+                        </div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Pending Approval</p>
+<h3 class="text-2xl font-headline font-bold">14</h3>
+<div class="mt-2 text-[10px] text-primary flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="priority_high">priority_high</span>
+                            Requires attention
+                        </div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total Revenue</p>
+<h3 class="text-2xl font-headline font-bold">$42.4k</h3>
+<div class="mt-2 text-[10px] text-tertiary flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="payments">payments</span>
+                            80% collected
+                        </div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Occupancy Rate</p>
+<h3 class="text-2xl font-headline font-bold">94%</h3>
+<div class="mt-2 text-[10px] text-on-surface-variant flex items-center gap-1 font-medium">
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+<div class="bg-primary w-[94%] h-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bookings Table Container -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/10">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant/20">
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Client Name</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Date &amp; Time</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Guest Count</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary font-bold">AU</div>
+<div>
+<p class="font-bold text-sm">Alisher Usmanov</p>
+<p class="text-xs text-on-surface-variant">+998 90 123 45 67</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="font-medium text-sm">24 Oct, 2023</p>
+<div class="flex items-center gap-1 text-[11px] font-bold text-on-primary-fixed-variant uppercase">
+<span class="material-symbols-outlined text-xs" data-icon="wb_sunny">wb_sunny</span>
+                                            Nahor
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="groups">groups</span>
+<span class="text-sm font-medium">450 kishi</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-tertiary-container/30 text-on-tertiary-container">
+                                            Tasdiqlangan
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1" title="Batafsil">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1" title="Rad etish">
+<span class="material-symbols-outlined" data-icon="cancel">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 (Pending) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary font-bold">KM</div>
+<div>
+<p class="font-bold text-sm">Kamola Mansurova</p>
+<p class="text-xs text-on-surface-variant">+998 97 777 88 99</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="font-medium text-sm">28 Oct, 2023</p>
+<div class="flex items-center gap-1 text-[11px] font-bold text-tertiary uppercase">
+<span class="material-symbols-outlined text-xs" data-icon="nightlight">nightlight</span>
+                                            Kechki
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="groups">groups</span>
+<span class="text-sm font-medium">300 kishi</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container/30 text-on-secondary-container">
+                                            Kutishda
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded uppercase tracking-wider hover:opacity-90 transition-opacity">Tasdiqlash</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="block">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary font-bold">SB</div>
+<div>
+<p class="font-bold text-sm">Sardor Berdiyev</p>
+<p class="text-xs text-on-surface-variant">+998 93 444 55 66</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="font-medium text-sm">02 Nov, 2023</p>
+<div class="flex items-center gap-1 text-[11px] font-bold text-on-primary-fixed-variant uppercase">
+<span class="material-symbols-outlined text-xs" data-icon="cloud_queue">cloud_queue</span>
+                                            Kunduz
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="groups">groups</span>
+<span class="text-sm font-medium">550 kishi</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-tertiary-container/30 text-on-tertiary-container">
+                                            Tasdiqlangan
+                                        </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-end gap-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="cancel">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 (Cancelled) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors opacity-75">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-bold">ZT</div>
+<div>
+<p class="font-bold text-sm line-through">Zarina Tuychiyeva</p>
+<p class="text-xs text-on-surface-variant">+998 90 999 00 11</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="font-medium text-sm">15 Nov, 2023</p>
+<div class="flex items-center gap-1 text-[11px] font-bold text-on-surface-variant uppercase">
+<span class="material-symbols-outlined text-xs" data-icon="nightlight">nightlight</span>
+                                            Kechki
+                                        </div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="groups">groups</span>
+<span class="text-sm font-medium">200 kishi</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-error-container/30 text-on-error-container">
+                                            Bekor qilingan
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-surface-container-low flex items-center justify-between border-t border-outline-variant/20">
+<p class="text-xs text-on-surface-variant font-medium">128 tadan 1-10 gacha ko'rsatilmoqda</p>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded hover:bg-white text-on-surface-variant transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary text-white text-xs font-bold">1</button>
+<button class="w-8 h-8 rounded hover:bg-white text-on-surface-variant text-xs font-medium">2</button>
+<button class="w-8 h-8 rounded hover:bg-white text-on-surface-variant text-xs font-medium">3</button>
+<span class="text-on-surface-variant">...</span>
+<button class="w-8 h-8 rounded hover:bg-white text-on-surface-variant text-xs font-medium">13</button>
+<button class="p-1 rounded hover:bg-white text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Featured Action Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+<div class="relative overflow-hidden rounded-2xl group cursor-pointer h-48 flex flex-col justify-end p-6 border border-outline-variant/10">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Close up of luxury wedding dinner table setting with gold cutlery and white flowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDdFW7wvJ1Zf_vlHF5TrarhFJxoHxblR07W_ApjU8Oy66uP4Eu-bgJUaqVOFQ74Gwvz41KlI8rHNmOI6DIgjeFWiAkFv-5V9wX8qE1F9N27Q1VHg4gg9xSX5xEPHMg9qoHCdbXGbTJ9Q5Ies3d2zo-UOqzysVukmqpz1tsVwKjTN_9EEoU6XZdhcjWi33waNrLgW5a_mIbzXUtzQHA8feyL8SWtsUxrq7rbBwlvOhsgCtn6oxt5duwHr4jphJgdD-jEPhpWTo9Bftg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent"></div>
+</div>
+<div class="relative z-10">
+<h4 class="text-white font-headline text-xl font-bold">Special Requests</h4>
+<p class="text-stone-300 text-xs mt-1">Review 5 new customization requests for upcoming weddings.</p>
+<button class="mt-4 px-4 py-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-stone-900 transition-all">Review Now</button>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl group cursor-pointer h-48 flex flex-col justify-end p-6 border border-outline-variant/10">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Professional kitchen staff preparing elegant banquet food in a clean modern kitchen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA90RTN9jJSCPa-kVpxme6gPMjP5FEm2xHT3r_FRu6zs-CBmd7J0yl3n54-9PTqlJlgbuu3KnkYFnyhLGd3rUT_jkhJotpoMZWPyYbr2pVk030nQQ10GHjLUfNtLiY43wm1zGsl7-yLYFqta4OTo3kkg3L7KeT3aMwph-5PLvp6f6dbM0SN2iQAH4CK1nDN7GlT9V7ChND4GRFYprqsymPrHKpH7HXCvBDpqGfeOjmvEJ0rOZ3yLn1oP2Cxi1saYwENK15TU2Lupavn"/>
+<div class="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent"></div>
+</div>
+<div class="relative z-10">
+<h4 class="text-white font-headline text-xl font-bold">Staff Assignments</h4>
+<p class="text-stone-300 text-xs mt-1">Manage kitchen and service staff for the weekend shifts.</p>
+<button class="mt-4 px-4 py-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-stone-900 transition-all">Assign Staff</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto p-8 text-center text-[10px] text-on-surface-variant font-medium tracking-widest uppercase opacity-50">
+                © 2023 Silk Road Admin Panel • Premium Wedding Management Suite
+            </footer>
+</main>
+</div>
+</body></html>

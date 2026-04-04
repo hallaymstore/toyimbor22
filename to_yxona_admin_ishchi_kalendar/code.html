@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#735c00",
+                        "on-primary-fixed-variant": "#574500",
+                        "on-primary-container": "#554300",
+                        "outline": "#7f7663",
+                        "on-tertiary-fixed-variant": "#0b513d",
+                        "surface-container": "#eeeeed",
+                        "background": "#faf9f8",
+                        "secondary-fixed-dim": "#e9c176",
+                        "surface": "#faf9f8",
+                        "on-surface": "#1a1c1c",
+                        "on-tertiary-container": "#074f3c",
+                        "on-background": "#1a1c1c",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary": "#2b6954",
+                        "surface-bright": "#faf9f8",
+                        "surface-container-high": "#e9e8e7",
+                        "primary-fixed": "#ffe088",
+                        "primary-container": "#d4af37",
+                        "inverse-surface": "#2f3130",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#775a19",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#b0f0d6",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#002117",
+                        "tertiary-container": "#81bfa7",
+                        "inverse-primary": "#e9c349",
+                        "tertiary-fixed-dim": "#95d3ba",
+                        "outline-variant": "#d0c5af",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f4f3f2",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dadad9",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#ffdea5",
+                        "on-primary-fixed": "#241a00",
+                        "surface-container-highest": "#e3e2e1",
+                        "secondary-container": "#fed488",
+                        "on-surface-variant": "#4d4635",
+                        "surface-tint": "#735c00",
+                        "surface-variant": "#e3e2e1",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#e9c349",
+                        "on-secondary-fixed": "#261900",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-noto-serif { font-family: 'Noto Serif', serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex overflow-hidden">
+<!-- SideNavBar (Predicted Component) -->
+<aside class="h-screen w-64 border-r-0 bg-stone-50 dark:bg-stone-950 flex flex-col py-6">
+<div class="px-6 mb-8">
+<h1 class="font-noto-serif italic font-bold text-amber-800 dark:text-amber-400 text-2xl tracking-tight">Silk Hall Admin</h1>
+<p class="text-stone-500 dark:text-stone-400 text-xs font-inter mt-1">Premium Vendor</p>
+</div>
+<nav class="flex-1 space-y-1 px-4">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded transition-colors text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<!-- Bookings -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded transition-colors text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">event_available</span>
+                Bookings
+            </a>
+<!-- Calendar (ACTIVE) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded transition-colors text-amber-800 dark:text-amber-400 font-semibold border-r-2 border-amber-600 bg-stone-100 dark:bg-stone-900 font-inter text-sm" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                Calendar
+            </a>
+<!-- Services -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded transition-colors text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">dry_cleaning</span>
+                Services
+            </a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded transition-colors text-stone-500 dark:text-stone-400 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 font-inter text-sm font-medium" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 bg-gradient-to-tr from-primary to-primary-container text-on-primary py-3 rounded text-sm font-semibold shadow-md">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                New Booking
+            </button>
+<div class="mt-6 flex items-center gap-3 px-2">
+<img alt="Vendor Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of a professional man in a sharp suit looking confident, warm soft lighting, corporate luxury aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHbszaB6_LxDfgxkqyhOCvVjj9ZCR0S2Fxa9vgq5o1d7xoev_BIoSNHnEn9SYJd9f5tuBXdyQGXo2WOvjbco2UazHWnqzTpRzmfC0m4sGCC2m4-o33QcoA8l6aiRO92djvcgoWyycu1gtUW91JWF8RwJw8cNmeyRygKjGptbj3RBRxoMCMBlqmGWWXN_nC4Q0OhHTi9K5BYylmtkAfKgvqxKAmElsmesSwR4YZ07r3x2UWW7tpW8lCHKE3bzxcMIFKgFr85YedXDPN"/>
+<div class="overflow-hidden">
+<p class="text-sm font-semibold truncate">Daler Akhmedov</p>
+<p class="text-xs text-stone-500 truncate">Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 bg-background overflow-y-auto">
+<!-- TopNavBar (Predicted Component) -->
+<header class="flex items-center justify-between px-8 w-full sticky top-0 z-40 bg-white/80 dark:bg-stone-950/80 backdrop-blur-xl h-16 shadow-sm shadow-amber-900/5">
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-amber-500/30 rounded pl-10 text-sm py-2 transition-all" placeholder="Qidiruv..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-stone-600 dark:text-stone-400">
+<button class="material-symbols-outlined hover:text-amber-600 transition-all">notifications</button>
+<button class="material-symbols-outlined hover:text-amber-600 transition-all">mail</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-2">
+<span class="font-noto-serif text-xl text-stone-900 dark:text-stone-100">Silk Road Admin</span>
+</div>
+</div>
+</header>
+<!-- Calendar Dashboard Area -->
+<section class="p-8 space-y-8">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="font-noto-serif text-3xl font-bold text-on-surface">Kalendar</h2>
+<p class="text-on-surface-variant font-medium mt-1 italic font-noto-serif">Oktabr, 2023 yil</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex bg-surface-container-high p-1 rounded">
+<button class="px-4 py-1.5 text-xs font-semibold bg-surface-container-lowest rounded shadow-sm">Oy</button>
+<button class="px-4 py-1.5 text-xs font-medium text-on-surface-variant">Hafta</button>
+<button class="px-4 py-1.5 text-xs font-medium text-on-surface-variant">Kun</button>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded bg-surface-container-high text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded bg-surface-container-high text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Legends -->
+<div class="flex gap-6 items-center px-6 py-4 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-tertiary"></div>
+<span class="text-xs font-medium text-on-surface-variant">Bo'sh (Erkin)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-secondary-fixed-dim"></div>
+<span class="text-xs font-medium text-on-surface-variant">Yarim band (1/3 slot)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<span class="text-xs font-medium text-on-surface-variant">To'liq band (3/3 slot)</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Main Month Grid -->
+<div class="col-span-12 lg:col-span-8">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<div class="grid grid-cols-7 border-b border-outline-variant/10">
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Du</div>
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Se</div>
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Ch</div>
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Pa</div>
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Ju</div>
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Sh</div>
+<div class="py-4 text-center text-xs font-bold text-on-surface-variant uppercase tracking-wider">Ya</div>
+</div>
+<div class="grid grid-cols-7">
+<!-- Placeholder empty cells -->
+<div class="h-32 border-r border-b border-outline-variant/10 bg-surface-container-low/30"></div>
+<div class="h-32 border-r border-b border-outline-variant/10 bg-surface-container-low/30"></div>
+<div class="h-32 border-r border-b border-outline-variant/10 bg-surface-container-low/30"></div>
+<div class="h-32 border-r border-b border-outline-variant/10 bg-surface-container-low/30"></div>
+<div class="h-32 border-r border-b border-outline-variant/10 bg-surface-container-low/30"></div>
+<!-- Oct 1 -->
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors relative">
+<span class="text-xs font-bold text-on-surface-variant">1</span>
+<div class="mt-2 space-y-1">
+<div class="h-1.5 w-full rounded-full bg-tertiary"></div>
+<div class="h-1.5 w-full rounded-full bg-tertiary"></div>
+<div class="h-1.5 w-full rounded-full bg-tertiary"></div>
+</div>
+</div>
+<div class="h-32 border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">2</span>
+<div class="mt-2 space-y-1">
+<div class="h-1.5 w-full rounded-full bg-error"></div>
+<div class="h-1.5 w-full rounded-full bg-error"></div>
+<div class="h-1.5 w-full rounded-full bg-error"></div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">3</span>
+<div class="mt-2 space-y-1">
+<div class="h-1.5 w-full rounded-full bg-secondary-fixed-dim"></div>
+<div class="h-1.5 w-full rounded-full bg-tertiary"></div>
+<div class="h-1.5 w-full rounded-full bg-tertiary"></div>
+</div>
+</div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors ring-2 ring-primary ring-inset z-10 bg-surface-container-high">
+<span class="text-xs font-bold text-primary">4</span>
+<div class="mt-2 space-y-1">
+<div class="h-1.5 w-full rounded-full bg-error"></div>
+<div class="h-1.5 w-full rounded-full bg-tertiary"></div>
+<div class="h-1.5 w-full rounded-full bg-error"></div>
+</div>
+<div class="absolute bottom-2 right-2 text-[10px] bg-primary text-white px-1.5 rounded uppercase font-bold">Bugun</div>
+</div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">5</span>
+<div class="mt-2 space-y-1"><div class="h-1.5 w-full rounded-full bg-tertiary"></div><div class="h-1.5 w-full rounded-full bg-tertiary"></div><div class="h-1.5 w-full rounded-full bg-tertiary"></div></div>
+</div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">6</span>
+<div class="mt-2 space-y-1"><div class="h-1.5 w-full rounded-full bg-error"></div><div class="h-1.5 w-full rounded-full bg-error"></div><div class="h-1.5 w-full rounded-full bg-error"></div></div>
+</div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">7</span>
+<div class="mt-2 space-y-1"><div class="h-1.5 w-full rounded-full bg-secondary-fixed-dim"></div><div class="h-1.5 w-full rounded-full bg-tertiary"></div><div class="h-1.5 w-full rounded-full bg-tertiary"></div></div>
+</div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">8</span>
+<div class="mt-2 space-y-1"><div class="h-1.5 w-full rounded-full bg-tertiary"></div><div class="h-1.5 w-full rounded-full bg-tertiary"></div><div class="h-1.5 w-full rounded-full bg-tertiary"></div></div>
+</div>
+<div class="h-32 border-b border-outline-variant/10 p-2 group hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">9</span>
+<div class="mt-2 space-y-1"><div class="h-1.5 w-full rounded-full bg-error"></div><div class="h-1.5 w-full rounded-full bg-error"></div><div class="h-1.5 w-full rounded-full bg-error"></div></div>
+</div>
+<!-- Remaining month filled programmatically representation -->
+<div class="h-32 border-r border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">10</span></div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">11</span></div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">12</span></div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">13</span></div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">14</span></div>
+<div class="h-32 border-r border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">15</span></div>
+<div class="h-32 border-b border-outline-variant/10 p-2"><span class="text-xs font-bold text-on-surface-variant">16</span></div>
+</div>
+</div>
+</div>
+<!-- Day Detail / Task Panel -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-lg">Kun Tafsilotlari</h3>
+<span class="text-xs font-bold px-2 py-1 bg-surface-container-high rounded uppercase tracking-tighter">4-Oktabr</span>
+</div>
+<!-- Slots -->
+<div class="space-y-4">
+<!-- Nahor -->
+<div class="p-4 rounded-lg bg-surface-container border-l-4 border-error">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] font-bold uppercase text-on-surface-variant mb-1">Nahor (Osh)</p>
+<h4 class="font-bold text-sm">To'liq band</h4>
+<p class="text-xs text-on-surface-variant mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                            Karimovlar oilasi
+                                        </p>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant text-lg">more_vert</button>
+</div>
+</div>
+<!-- Kunduz -->
+<div class="p-4 rounded-lg bg-tertiary-container/20 border-l-4 border-tertiary">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] font-bold uppercase text-tertiary mb-1">Kunduz</p>
+<h4 class="font-bold text-sm text-on-tertiary-container">Bo'sh (Erkin)</h4>
+<p class="text-xs text-tertiary-container font-medium mt-2">Hech qanday bandlik yo'q</p>
+</div>
+<div class="flex flex-col gap-2">
+<button class="text-[10px] font-bold py-1 px-3 bg-tertiary text-on-tertiary rounded">Band qilish</button>
+<button class="text-[10px] font-bold py-1 px-3 border border-outline-variant rounded">Bloklash</button>
+</div>
+</div>
+</div>
+<!-- Kech -->
+<div class="p-4 rounded-lg bg-surface-container border-l-4 border-error">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] font-bold uppercase text-on-surface-variant mb-1">Kechki bazm</p>
+<h4 class="font-bold text-sm">To'liq band</h4>
+<p class="text-xs text-on-surface-variant mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                            Bekzod &amp; Madina (Nikoh)
+                                        </p>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant text-lg">more_vert</button>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<h4 class="text-xs font-bold text-on-surface-variant uppercase mb-4 tracking-wider">Quick Actions</h4>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-low rounded-lg hover:bg-primary-container/20 transition-all group">
+<span class="material-symbols-outlined text-primary mb-2 group-hover:scale-110 transition-transform">block</span>
+<span class="text-[10px] font-bold uppercase">KUNNI BLOKLASH</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-low rounded-lg hover:bg-primary-container/20 transition-all group">
+<span class="material-symbols-outlined text-primary mb-2 group-hover:scale-110 transition-transform">edit_calendar</span>
+<span class="text-[10px] font-bold uppercase">NARXLARNI O'ZG.</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Small Stat Widget -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+<h3 class="text-xs font-bold text-on-surface-variant uppercase mb-4 tracking-widest">Oylik statistika</h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-sm">Jami band kunlar</span>
+<span class="font-bold">24 / 31</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 77%"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant">O'tgan oyga nisbatan +12% o'sish</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Signature Editorial Footer -->
+<footer class="mt-auto px-8 py-6 flex items-center justify-between opacity-50">
+<p class="text-[10px] font-medium tracking-widest uppercase text-on-surface-variant">© 2023 Silk Road Wedding Management System</p>
+<div class="flex gap-4">
+<span class="text-[10px] font-bold uppercase">Hujjatlar</span>
+<span class="text-[10px] font-bold uppercase">Yordam</span>
+</div>
+</footer>
+</main>
+</body></html>
