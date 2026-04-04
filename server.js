@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const { MongoClient } = require("mongodb");
@@ -15,12 +17,12 @@ const upload = multer({
 const PORT = Number(process.env.PORT || 3000);
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 const MONGODB_DB = process.env.MONGODB_DB || "toyimbor";
+const TODAY = process.env.APP_TODAY || "2026-04-04";
 const CLOUDINARY_ENABLED = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME &&
     process.env.CLOUDINARY_API_KEY &&
     process.env.CLOUDINARY_API_SECRET,
 );
-const TODAY = "2026-04-04";
 const DEFAULT_MONTH = TODAY.slice(0, 7);
 const SITE_DIR = path.join(__dirname, "public");
 
