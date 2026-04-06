@@ -42,6 +42,8 @@ const SEED_CUSTOMER_EMAIL = process.env.SEED_CUSTOMER_EMAIL || "customer@toyimbo
 const SEED_CUSTOMER_PASSWORD = process.env.SEED_CUSTOMER_PASSWORD || "Customer123!";
 const SEED_VENDOR_EMAIL = process.env.SEED_VENDOR_EMAIL || "vendor@toyimbor.uz";
 const SEED_VENDOR_PASSWORD = process.env.SEED_VENDOR_PASSWORD || "Vendor123!";
+const BOOKING_STATUSES = new Set(["pending", "confirmed", "cancelled"]);
+const PAYMENT_STATUSES = new Set(["awaiting", "deposit-paid", "partial", "paid", "refunded"]);
 
 if (CLOUDINARY_ENABLED) {
   cloudinary.config({
@@ -72,7 +74,7 @@ function createSeedState() {
         role: "customer",
         fullName: "Aziza Karimova",
         phone: "+998901234567",
-        email: "aziza@example.com",
+        email: SEED_CUSTOMER_EMAIL,
         city: "Toshkent",
         weddingDate: "2026-09-12",
         budget: 120000000,
@@ -91,7 +93,7 @@ function createSeedState() {
         role: "vendor",
         fullName: "Silk Garden Admin",
         phone: "+998971112233",
-        email: "admin@silkgarden.uz",
+        email: SEED_VENDOR_EMAIL,
         city: "Toshkent",
         venueName: "Silk Garden Hall",
         favoriteServiceIds: [],
@@ -639,6 +641,15 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function toBoolean(value, fallback = false) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value === "true") return true;
+    if (value === "false") return false;
+  }
+  return fallback;
+}
+
 function buildId(prefix) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -706,6 +717,27 @@ function sanitizeUser(user) {
     ...safeUser
   } = user;
   return safeUser;
+}
+
+function buildSystemWarnings() {
+  const warnings = [];
+  if (databaseMode !== "mongo") {
+    warnings.push({
+      code: "memory_mode",
+      level: "warning",
+      message:
+        "Tizim vaqtinchalik xotira rejimida ishlayapti. Ma'lumotlar deploy yoki restartdan keyin saqlanmay qolishi mumkin.",
+    });
+  }
+  if (!CLOUDINARY_ENABLED) {
+    warnings.push({
+      code: "cloudinary_disabled",
+      level: "info",
+      message:
+        "Cloudinary ulanishi sozlanmagan. Fayl upload o'rniga URL orqali rasm qo'shish ishlaydi.",
+    });
+  }
+  return warnings;
 }
 
 async function connectDatabase() {
@@ -947,6 +979,7 @@ async function getUserWithFavorites(userId) {
 }
 
 async function ensureSeedAccounts() {
+  const seedUsers = new Map(createSeedState().users.map((user) => [user._id, user]));
   const accounts = [
     {
       id: SEED_CUSTOMER_ID,
@@ -983,26 +1016,80 @@ async function ensureSeedAccounts() {
           $or: [{ emailNormalized }, { phoneNormalized }],
         },
       ));
-    if (!existing) continue;
+    const seedUser = seedUsers.get(account.id) || null;
+    let normalizedExisting = existing ? { ...existing } : null;
+
+    if (normalizedExisting && normalizedExisting._id !== account.id) {
+      await migrateUserReferences(normalizedExisting._id, account.id, account.role);
+      await deleteRecord("users", normalizedExisting._id);
+      normalizedExisting = {
+        ...normalizedExisting,
+        _id: account.id,
+      };
+    }
+
+    const passwordInfo = await createPasswordHash(account.password);
     const next = {
-      ...existing,
-      role: existing.role || account.role,
-      fullName: existing.fullName || account.fullName,
+      ...(seedUser || {}),
+      ...(normalizedExisting || {}),
+      _id: account.id,
+      role: account.role,
+      fullName: normalizedExisting?.fullName || seedUser?.fullName || account.fullName,
       email: account.email,
       emailNormalized,
-      phone: existing.phone || account.phone,
+      phone: normalizedExisting?.phone || seedUser?.phone || account.phone,
       phoneNormalized,
-      city: existing.city || account.city,
-      venueName: existing.venueName || account.venueName || "",
-      sessions: Array.isArray(existing.sessions) ? existing.sessions : [],
+      city: normalizedExisting?.city || seedUser?.city || account.city,
+      venueName:
+        account.role === "vendor"
+          ? normalizedExisting?.venueName || seedUser?.venueName || account.venueName || ""
+          : "",
+      favoriteServiceIds: Array.isArray(normalizedExisting?.favoriteServiceIds)
+        ? normalizedExisting.favoriteServiceIds
+        : seedUser?.favoriteServiceIds || [],
+      sessions: Array.isArray(normalizedExisting?.sessions) ? normalizedExisting.sessions : [],
+      passwordHash: passwordInfo.hash,
+      passwordSalt: passwordInfo.salt,
+      createdAt: normalizedExisting?.createdAt || seedUser?.createdAt || nowIso(),
       updatedAt: nowIso(),
     };
-    if (!existing.passwordHash || !existing.passwordSalt) {
-      const passwordInfo = await createPasswordHash(account.password);
-      next.passwordHash = passwordInfo.hash;
-      next.passwordSalt = passwordInfo.salt;
-    }
     await upsertRecord("users", next);
+  }
+}
+
+async function migrateUserReferences(previousId, nextId, role) {
+  if (!previousId || !nextId || previousId === nextId) return;
+
+  if (role === "vendor") {
+    const services = await readCollection("services");
+    for (const service of services) {
+      if (service.vendorId !== previousId) continue;
+      await upsertRecord("services", {
+        ...service,
+        vendorId: nextId,
+        updatedAt: nowIso(),
+      });
+    }
+  }
+
+  const bookings = await readCollection("bookings");
+  for (const booking of bookings) {
+    let changed = false;
+    const nextBooking = { ...booking };
+
+    if (role === "customer" && booking.userId === previousId) {
+      nextBooking.userId = nextId;
+      changed = true;
+    }
+
+    if (role === "vendor" && booking.vendorId === previousId) {
+      nextBooking.vendorId = nextId;
+      changed = true;
+    }
+
+    if (!changed) continue;
+    nextBooking.updatedAt = nowIso();
+    await upsertRecord("bookings", nextBooking);
   }
 }
 
@@ -1164,6 +1251,8 @@ async function getBookings(filters = {}) {
         serviceCategory: service?.category || "",
         serviceImage: service?.heroImage || service?.gallery?.[0]?.url || "",
         city: service?.city || "",
+        statusLabel: statusLabel(booking.status),
+        paymentStatusLabel: paymentStatusLabel(booking.paymentStatus),
       };
     });
 
@@ -1209,6 +1298,17 @@ function statusLabel(status) {
   return labels[status] || status;
 }
 
+function paymentStatusLabel(status) {
+  const labels = {
+    awaiting: "Kutilmoqda",
+    "deposit-paid": "Depozit to'langan",
+    partial: "Qisman to'langan",
+    paid: "To'langan",
+    refunded: "Qaytarilgan",
+  };
+  return labels[status] || status;
+}
+
 async function computePlatformStats() {
   const [users, services, bookings] = await Promise.all([
     readCollection("users"),
@@ -1239,6 +1339,7 @@ async function getDashboardBootstrap(userId) {
     user,
     bookings,
     featuredServices: services,
+    warnings: buildSystemWarnings(),
   };
 }
 
@@ -1287,6 +1388,7 @@ async function getAdminBootstrap(vendorId, month = DEFAULT_MONTH, serviceId = ""
     activeService,
     month,
     cloudinaryEnabled: CLOUDINARY_ENABLED,
+    warnings: buildSystemWarnings(),
   };
 }
 
@@ -1388,6 +1490,7 @@ app.get("/api/health", (req, res) => {
     cloudinaryEnabled: CLOUDINARY_ENABLED,
     today: TODAY,
     timezone: APP_TIMEZONE,
+    warnings: buildSystemWarnings(),
   });
 });
 
@@ -1400,6 +1503,7 @@ app.get("/api/config", async (req, res, next) => {
       today: TODAY,
       defaultMonth: DEFAULT_MONTH,
       authUser: currentUser ? await getUserWithFavorites(currentUser._id) : null,
+      warnings: buildSystemWarnings(),
     });
   } catch (error) {
     next(error);
@@ -1558,8 +1662,8 @@ app.post("/api/services", requireAuth, requireRole("vendor"), async (req, res, n
       district: req.body.district || "",
       address: req.body.address || "",
       badge: req.body.badge || "Draft",
-      verified: false,
-      featured: false,
+      verified: toBoolean(req.body.verified, false),
+      featured: toBoolean(req.body.featured, false),
       rating: 0,
       reviews: 0,
       capacity: toNumber(req.body.capacity),
@@ -1571,7 +1675,7 @@ app.post("/api/services", requireAuth, requireRole("vendor"), async (req, res, n
       gallery: [],
       amenities: Array.isArray(req.body.amenities) ? req.body.amenities : [],
       styles: Array.isArray(req.body.styles) ? req.body.styles : [],
-      maxDailyBookings: 3,
+      maxDailyBookings: Math.max(1, toNumber(req.body.maxDailyBookings, 3)),
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
@@ -1612,8 +1716,8 @@ app.put("/api/services/:id", requireAuth, requireRole("vendor"), async (req, res
       district: req.body.district ?? existing.district,
       address: req.body.address ?? existing.address,
       badge: req.body.badge ?? existing.badge,
-      featured: typeof req.body.featured === "boolean" ? req.body.featured : existing.featured,
-      verified: typeof req.body.verified === "boolean" ? req.body.verified : existing.verified,
+      featured: toBoolean(req.body.featured, existing.featured),
+      verified: toBoolean(req.body.verified, existing.verified),
       capacity: toNumber(req.body.capacity, existing.capacity),
       pricePerGuest: toNumber(req.body.pricePerGuest, existing.pricePerGuest),
       basePrice: toNumber(req.body.basePrice, existing.basePrice),
@@ -1622,7 +1726,7 @@ app.put("/api/services/:id", requireAuth, requireRole("vendor"), async (req, res
       heroImage: req.body.heroImage ?? existing.heroImage,
       amenities: Array.isArray(req.body.amenities) ? req.body.amenities : existing.amenities,
       styles: Array.isArray(req.body.styles) ? req.body.styles : existing.styles,
-      maxDailyBookings: toNumber(req.body.maxDailyBookings, existing.maxDailyBookings),
+      maxDailyBookings: Math.max(1, toNumber(req.body.maxDailyBookings, existing.maxDailyBookings)),
       gallery,
       updatedAt: nowIso(),
     };
@@ -1696,6 +1800,90 @@ app.post(
     }
   },
 );
+
+app.delete("/api/services/:id/images", requireAuth, requireRole("vendor"), async (req, res, next) => {
+  try {
+    const service = await findById("services", req.params.id);
+    if (!service) {
+      return res.status(404).json({ message: "Xizmat topilmadi." });
+    }
+    if (service.vendorId !== req.authUser._id) {
+      return res.status(403).json({ message: "Bu galereyaga ruxsat yo'q." });
+    }
+
+    const imageUrl = String(req.body.imageUrl || "").trim();
+    const publicId = String(req.body.publicId || "").trim();
+    const target = (service.gallery || []).find(
+      (item) => (publicId && item.publicId === publicId) || (imageUrl && item.url === imageUrl),
+    );
+
+    if (!target) {
+      return res.status(404).json({ message: "Galereya rasmi topilmadi." });
+    }
+
+    if (target.publicId && CLOUDINARY_ENABLED) {
+      await cloudinary.uploader.destroy(target.publicId, {
+        resource_type: "image",
+      });
+    }
+
+    const gallery = (service.gallery || []).filter(
+      (item) => !(item.url === target.url && (item.publicId || "") === (target.publicId || "")),
+    );
+    const updated = {
+      ...service,
+      gallery,
+      heroImage: service.heroImage === target.url ? gallery[0]?.url || "" : service.heroImage,
+      updatedAt: nowIso(),
+    };
+    await upsertRecord("services", updated);
+    return res.json(updated);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete("/api/services/:id", requireAuth, requireRole("vendor"), async (req, res, next) => {
+  try {
+    const service = await findById("services", req.params.id);
+    if (!service) {
+      return res.status(404).json({ message: "Xizmat topilmadi." });
+    }
+    if (service.vendorId !== req.authUser._id) {
+      return res.status(403).json({ message: "Bu xizmatni o'chirishga ruxsat yo'q." });
+    }
+
+    const activeBookings = (await readCollection("bookings")).filter(
+      (booking) =>
+        booking.serviceId === service._id &&
+        booking.status !== "cancelled" &&
+        booking.eventDate >= TODAY,
+    );
+    if (activeBookings.length > 0) {
+      return res.status(409).json({
+        message: "Kelajakdagi faol bronlari bor xizmatni o'chirib bo'lmaydi.",
+      });
+    }
+
+    if (CLOUDINARY_ENABLED) {
+      await Promise.allSettled(
+        (service.gallery || [])
+          .map((item) => item.publicId)
+          .filter(Boolean)
+          .map((publicId) =>
+            cloudinary.uploader.destroy(publicId, {
+              resource_type: "image",
+            }),
+          ),
+      );
+    }
+
+    await deleteRecord("services", service._id);
+    return res.json({ ok: true });
+  } catch (error) {
+    return next(error);
+  }
+});
 
 app.get("/api/users/:id", requireAuth, async (req, res, next) => {
   try {
@@ -1931,15 +2119,25 @@ app.patch("/api/bookings/:id", requireAuth, async (req, res, next) => {
 
     const updated = {
       ...booking,
-      note: req.body.note ?? booking.note,
+      note: String(req.body.note ?? booking.note ?? "").trim(),
       updatedAt: nowIso(),
     };
 
     if (isVendorOwner) {
-      updated.status = req.body.status ?? booking.status;
-      updated.paymentStatus = req.body.paymentStatus ?? booking.paymentStatus;
+      const nextStatus = req.body.status ?? booking.status;
+      const nextPaymentStatus = req.body.paymentStatus ?? booking.paymentStatus;
+      if (!BOOKING_STATUSES.has(nextStatus)) {
+        return res.status(400).json({ message: "Bron holati noto'g'ri yuborildi." });
+      }
+      if (!PAYMENT_STATUSES.has(nextPaymentStatus)) {
+        return res.status(400).json({ message: "To'lov holati noto'g'ri yuborildi." });
+      }
+      updated.status = nextStatus;
+      updated.paymentStatus = nextPaymentStatus;
     } else if (isCustomerOwner && req.body.status === "cancelled") {
       updated.status = "cancelled";
+    } else if (isCustomerOwner && req.body.status && req.body.status !== booking.status) {
+      return res.status(400).json({ message: "Mijoz faqat bronni bekor qilishi mumkin." });
     }
 
     await upsertRecord("bookings", updated);

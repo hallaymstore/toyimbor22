@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     state.config = await api("/api/config");
     state.authUser = state.config.authUser || null;
     renderGlobalChrome();
+    renderSystemBanner();
 
     const page = document.body.dataset.page;
     if (page === "home") await initHome();
@@ -104,6 +105,43 @@ function toast(message, type = "info") {
   container._timer = window.setTimeout(() => {
     container.classList.remove("is-visible");
   }, 3400);
+}
+
+function renderSystemBanner() {
+  const warnings = Array.isArray(state.config?.warnings) ? state.config.warnings : [];
+  const existing = document.getElementById("system-banner");
+  if (warnings.length === 0) {
+    existing?.remove();
+    return;
+  }
+
+  const html = `
+    <section id="system-banner" class="system-banner">
+      <div class="shell">
+        ${warnings
+          .map(
+            (warning) => `
+              <div class="notice system-banner__item" data-level="${escapeHtml(warning.level || "info")}">
+                <strong>${escapeHtml(warning.code === "memory_mode" ? "Deploy ogohlantirishi" : "Integratsiya holati")}</strong>
+                <span>${escapeHtml(warning.message || "")}</span>
+              </div>`,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+
+  if (existing) {
+    existing.outerHTML = html;
+    return;
+  }
+
+  const header = document.querySelector(".site-header");
+  if (header) {
+    header.insertAdjacentHTML("afterend", html);
+  } else {
+    document.body.insertAdjacentHTML("afterbegin", html);
+  }
 }
 
 function formatMoney(value) {
@@ -511,19 +549,39 @@ async function initBooking() {
 }
 
 function bookingCardTemplate(item) {
+  const canCancel =
+    state.authUser?.role === "customer" &&
+    item.status !== "cancelled" &&
+    item.eventDate >= (state.config?.today || "");
   return `
     <article class="booking-list__card">
       <img src="${escapeHtml(item.serviceImage)}" alt="${escapeHtml(item.serviceName)}" />
-      <div>
+      <div class="booking-list__content">
         <div class="section__heading">
           <div>
             <h3>${escapeHtml(item.serviceName)}</h3>
             <p class="muted-text">${escapeHtml(formatDate(item.eventDate))} - ${escapeHtml(item.slot)}</p>
           </div>
-          <span class="status-pill status-pill--${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
+          <span class="status-pill status-pill--${escapeHtml(item.status)}">${escapeHtml(
+            item.statusLabel || item.status,
+          )}</span>
         </div>
         <p class="booking-list__text">${escapeHtml(item.serviceCategory)} - ${escapeHtml(item.city || "")}</p>
+        <div class="cluster booking-list__meta">
+          <span class="chip">${escapeHtml(item.paymentStatusLabel || item.paymentStatus || "Kutilmoqda")}</span>
+          <span class="chip">${escapeHtml(String(item.guestCount || 0))} mehmon</span>
+        </div>
         <p class="booking-list__text">Jami: ${escapeHtml(formatMoney(item.total))}</p>
+        ${item.note ? `<p class="booking-list__note">${escapeHtml(item.note)}</p>` : ""}
+        ${
+          canCancel
+            ? `<div class="booking-list__actions">
+                <button class="button button--ghost button--small booking-cancel" data-id="${escapeHtml(
+                  item._id,
+                )}" type="button">Bronni bekor qilish</button>
+              </div>`
+            : ""
+        }
       </div>
     </article>
   `;
@@ -559,13 +617,19 @@ async function initDashboard() {
   if (!ensureRole("customer")) return;
 
   const bootstrap = await api("/api/dashboard/bootstrap");
+  state.config = {
+    ...state.config,
+    warnings: bootstrap.warnings || state.config?.warnings || [],
+  };
   state.authUser = bootstrap.user;
   renderGlobalChrome();
+  renderSystemBanner();
   document.getElementById("dashboard-title").textContent = `${bootstrap.user.fullName} uchun boshqaruv paneli`;
   document.getElementById("dashboard-bookings").innerHTML =
     bootstrap.bookings.length > 0
       ? bootstrap.bookings.map((item) => bookingCardTemplate(item)).join("")
       : `<div class="notice">Hozircha bronlar yo'q. Katalogdan xizmat tanlab ko'ring.</div>`;
+  bindDashboardActions();
 
   const recommendationForm = document.getElementById("recommendation-form");
   recommendationForm.elements.namedItem("location").value = bootstrap.user.city || "Toshkent";
@@ -592,6 +656,24 @@ async function initDashboard() {
   };
 
   recommendationForm.dispatchEvent(new Event("submit"));
+}
+
+function bindDashboardActions() {
+  document.querySelectorAll(".booking-cancel").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        if (!window.confirm("Bu bronni bekor qilmoqchimisiz?")) return;
+        await api(`/api/bookings/${button.dataset.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+        toast("Bron bekor qilindi.");
+        await initDashboard();
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    };
+  });
 }
 
 async function initProfile(refreshOnly = false) {
@@ -648,6 +730,24 @@ function summaryCardTemplate(label, value, accent = "") {
   `;
 }
 
+function paymentOptionsTemplate(selectedValue) {
+  const options = [
+    { value: "awaiting", label: "Kutilmoqda" },
+    { value: "deposit-paid", label: "Depozit to'langan" },
+    { value: "partial", label: "Qisman to'langan" },
+    { value: "paid", label: "To'langan" },
+    { value: "refunded", label: "Qaytarilgan" },
+  ];
+  return options
+    .map(
+      (option) =>
+        `<option value="${escapeHtml(option.value)}" ${
+          selectedValue === option.value ? "selected" : ""
+        }>${escapeHtml(option.label)}</option>`,
+    )
+    .join("");
+}
+
 function adminBookingRowTemplate(booking) {
   return `
     <tr>
@@ -656,12 +756,33 @@ function adminBookingRowTemplate(booking) {
         <div class="muted-text">${escapeHtml(booking.phone || "")}</div>
       </td>
       <td>${escapeHtml(booking.serviceName)}</td>
-      <td>${escapeHtml(formatDate(booking.eventDate))} - ${escapeHtml(booking.slot)}</td>
-      <td><span class="status-pill status-pill--${escapeHtml(booking.status)}">${escapeHtml(booking.status)}</span></td>
       <td>
-        <div class="cluster">
+        <strong>${escapeHtml(formatDate(booking.eventDate))}</strong>
+        <div class="muted-text">${escapeHtml(booking.slot)} • ${escapeHtml(
+          String(booking.guestCount || 0),
+        )} mehmon</div>
+        <div class="muted-text">${escapeHtml(formatMoney(booking.total))}</div>
+      </td>
+      <td>
+        <span class="status-pill status-pill--${escapeHtml(booking.status)}">${escapeHtml(
+          booking.statusLabel || booking.status,
+        )}</span>
+      </td>
+      <td>
+        <select class="compact-control admin-booking-payment" data-id="${escapeHtml(booking._id)}">
+          ${paymentOptionsTemplate(booking.paymentStatus)}
+        </select>
+      </td>
+      <td>
+        <textarea class="admin-note-field" data-id="${escapeHtml(booking._id)}" rows="3" placeholder="Izoh">${escapeHtml(
+          booking.note || "",
+        )}</textarea>
+      </td>
+      <td>
+        <div class="stack-form admin-booking-actions">
           <button class="button button--ghost button--small admin-booking-status" data-id="${escapeHtml(booking._id)}" data-status="confirmed" type="button">Tasdiqlash</button>
           <button class="button button--ghost button--small admin-booking-status" data-id="${escapeHtml(booking._id)}" data-status="cancelled" type="button">Bekor qilish</button>
+          <button class="button button--primary button--small admin-booking-save" data-id="${escapeHtml(booking._id)}" type="button">Saqlash</button>
         </div>
       </td>
     </tr>
@@ -697,6 +818,14 @@ function galleryItemTemplate(item) {
   return `
     <div class="gallery-grid__item">
       <img src="${escapeHtml(item.url)}" alt="Service gallery" />
+      <button
+        class="button button--danger button--small gallery-grid__remove"
+        data-url="${escapeHtml(item.url)}"
+        data-public-id="${escapeHtml(item.publicId || "")}"
+        type="button"
+      >
+        O'chirish
+      </button>
     </div>
   `;
 }
@@ -714,10 +843,20 @@ function fillServiceForm(service) {
   form.elements.namedItem("capacity").value = service.capacity || "";
   form.elements.namedItem("pricePerGuest").value = service.pricePerGuest || "";
   form.elements.namedItem("basePrice").value = service.basePrice || "";
+  form.elements.namedItem("heroImage").value = service.heroImage || "";
+  form.elements.namedItem("maxDailyBookings").value = service.maxDailyBookings || 3;
   form.elements.namedItem("shortDescription").value = service.shortDescription || "";
   form.elements.namedItem("description").value = service.description || "";
   form.elements.namedItem("amenitiesText").value = (service.amenities || []).join(", ");
   form.elements.namedItem("stylesText").value = (service.styles || []).join(", ");
+  form.elements.namedItem("featured").checked = Boolean(service.featured);
+  form.elements.namedItem("verified").checked = Boolean(service.verified);
+}
+
+function clearServiceForm() {
+  const form = document.getElementById("admin-service-form");
+  form.reset();
+  form.elements.namedItem("_id").value = "";
 }
 
 async function refreshAdmin(serviceId = state.admin.activeServiceId, month = state.admin.month) {
@@ -726,10 +865,15 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
   if (serviceId) query.set("serviceId", serviceId);
   const data = await api(`/api/admin/bootstrap?${query.toString()}`);
 
+  state.config = {
+    ...state.config,
+    warnings: data.warnings || state.config?.warnings || [],
+  };
   state.admin.activeServiceId = data.activeService?._id || data.services[0]?._id || "";
   state.admin.month = data.month || state.config.defaultMonth;
   state.authUser = data.vendor || state.authUser;
   renderGlobalChrome();
+  renderSystemBanner();
 
   document.getElementById("admin-vendor-name").textContent =
     data.vendor?.venueName || data.vendor?.fullName || "Vendor admin";
@@ -744,9 +888,10 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
     summaryCardTemplate("Bandlik", `${data.summary.occupancyRate}%`, `${data.summary.serviceCount} ta xizmat`),
   ].join("");
 
-  document.getElementById("admin-bookings-body").innerHTML = data.bookings
-    .map((booking) => adminBookingRowTemplate(booking))
-    .join("");
+  document.getElementById("admin-bookings-body").innerHTML =
+    data.bookings.length > 0
+      ? data.bookings.map((booking) => adminBookingRowTemplate(booking)).join("")
+      : `<tr><td colspan="7" class="muted-text">Hozircha bronlar yo'q.</td></tr>`;
   document.getElementById("calendar-service").innerHTML = data.services
     .map(
       (service) =>
@@ -759,7 +904,7 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
     `<div class="notice">Kalendar uchun to'yxona xizmati topilmadi.</div>`;
   document.getElementById("admin-service-list").innerHTML = data.services
     .map((service) => adminServiceCardTemplate(service, state.admin.activeServiceId))
-    .join("");
+    .join("") || `<div class="notice">Hali xizmatlar yo'q. Avval yangi xizmat yarating.</div>`;
 
   if (data.activeService) {
     fillServiceForm(data.activeService);
@@ -767,8 +912,10 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
       .map((item) => galleryItemTemplate(item))
       .join("");
   } else {
+    clearServiceForm();
     document.getElementById("admin-gallery").innerHTML = "";
   }
+  document.getElementById("delete-service-button").disabled = !data.activeService;
 
   bindAdminInteractions();
 }
@@ -789,10 +936,48 @@ function bindAdminInteractions() {
     };
   });
 
+  document.querySelectorAll(".admin-booking-save").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        const paymentField = document.querySelector(`.admin-booking-payment[data-id="${button.dataset.id}"]`);
+        const noteField = document.querySelector(`.admin-note-field[data-id="${button.dataset.id}"]`);
+        await api(`/api/bookings/${button.dataset.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            paymentStatus: paymentField?.value || "awaiting",
+            note: noteField?.value || "",
+          }),
+        });
+        toast("Bron tafsilotlari saqlandi.");
+        await refreshAdmin();
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    };
+  });
+
   document.querySelectorAll(".admin-service-item").forEach((item) => {
     item.onclick = async () => {
       state.admin.activeServiceId = item.dataset.id;
       await refreshAdmin(item.dataset.id, state.admin.month);
+    };
+  });
+
+  document.querySelectorAll(".gallery-grid__remove").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        await api(`/api/services/${state.admin.activeServiceId}/images`, {
+          method: "DELETE",
+          body: JSON.stringify({
+            imageUrl: button.dataset.url,
+            publicId: button.dataset.publicId,
+          }),
+        });
+        toast("Galereyadan rasm o'chirildi.");
+        await refreshAdmin(state.admin.activeServiceId, state.admin.month);
+      } catch (error) {
+        toast(error.message, "error");
+      }
     };
   });
 }
@@ -854,6 +1039,10 @@ async function initAdmin() {
         capacity: Number(get("capacity").value || 0),
         pricePerGuest: Number(get("pricePerGuest").value || 0),
         basePrice: Number(get("basePrice").value || 0),
+        heroImage: get("heroImage").value,
+        maxDailyBookings: Number(get("maxDailyBookings").value || 3),
+        featured: get("featured").checked,
+        verified: get("verified").checked,
         shortDescription: get("shortDescription").value,
         description: get("description").value,
         amenities: get("amenitiesText").value
@@ -892,6 +1081,24 @@ async function initAdmin() {
         .join("");
       event.currentTarget.reset();
       toast("Galereya yangilandi.");
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  };
+
+  document.getElementById("delete-service-button").onclick = async () => {
+    try {
+      if (!state.admin.activeServiceId) {
+        throw new Error("O'chirish uchun xizmat tanlanmagan.");
+      }
+      if (!window.confirm("Tanlangan xizmatni o'chirmoqchimisiz?")) return;
+      await api(`/api/services/${state.admin.activeServiceId}`, {
+        method: "DELETE",
+        body: JSON.stringify({}),
+      });
+      state.admin.activeServiceId = "";
+      toast("Xizmat o'chirildi.");
+      await refreshAdmin("", state.admin.month);
     } catch (error) {
       toast(error.message, "error");
     }

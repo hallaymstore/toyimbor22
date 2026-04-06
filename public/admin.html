@@ -59,6 +59,8 @@
                 <th>Xizmat</th>
                 <th>Sana</th>
                 <th>Holat</th>
+                <th>To'lov</th>
+                <th>Izoh</th>
                 <th>Amal</th>
               </tr>
             </thead>
@@ -135,6 +137,14 @@
                   <span>Base price</span>
                   <input name="basePrice" type="number" />
                 </label>
+                <label class="field">
+                  <span>Hero image URL</span>
+                  <input name="heroImage" type="url" placeholder="https://..." />
+                </label>
+                <label class="field">
+                  <span>Kunlik maksimal bron</span>
+                  <input name="maxDailyBookings" type="number" min="1" />
+                </label>
                 <label class="field field--full">
                   <span>Qisqa tavsif</span>
                   <input name="shortDescription" type="text" />
@@ -151,8 +161,21 @@
                   <span>Uslublar (vergul bilan)</span>
                   <input name="stylesText" type="text" />
                 </label>
+                <div class="field field--full checkbox-row">
+                  <label class="checkbox-item">
+                    <input name="featured" type="checkbox" />
+                    <span>Featured</span>
+                  </label>
+                  <label class="checkbox-item">
+                    <input name="verified" type="checkbox" />
+                    <span>Verified</span>
+                  </label>
+                </div>
               </div>
-              <button class="button button--primary button--wide" type="submit">Saqlash</button>
+              <div class="service-form__footer">
+                <button class="button button--primary" type="submit">Saqlash</button>
+                <button class="button button--danger" id="delete-service-button" type="button">Xizmatni o'chirish</button>
+              </div>
             </form>
 
             <form id="admin-image-upload-form" class="stack-form upload-form">
