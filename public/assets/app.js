@@ -1,29 +1,23 @@
 const state = {
   config: null,
-  currentUser: null,
+  authUser: null,
   activeService: null,
-  lastPhone: "",
   admin: {
-    vendorId: "usr-vendor-silk",
-    services: [],
-    activeServiceId: "",
     month: "",
+    activeServiceId: "",
   },
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     state.config = await api("/api/config");
-    state.currentUser = getStoredUser();
-    if (!state.currentUser && state.config.demoCustomerId) {
-      const demoUser = await api(`/api/users/${state.config.demoCustomerId}`);
-      setStoredUser(demoUser);
-      state.currentUser = demoUser;
-    }
+    state.authUser = state.config.authUser || null;
+    renderGlobalChrome();
 
     const page = document.body.dataset.page;
     if (page === "home") await initHome();
     if (page === "catalog") await initCatalog();
+    if (page === "auth") await initAuth();
     if (page === "booking") await initBooking();
     if (page === "dashboard") await initDashboard();
     if (page === "profile") await initProfile();
@@ -36,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function api(url, options = {}) {
   const response = await fetch(url, {
+    credentials: "same-origin",
     headers: {
       ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...(options.headers || {}),
@@ -45,40 +40,53 @@ async function api(url, options = {}) {
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.message || "So'rov bajarilmadi.");
+    const error = new Error(data.message || "So'rov bajarilmadi.");
+    error.status = response.status;
+    error.payload = data;
+    throw error;
   }
   return data;
 }
 
-function getStoredUser() {
-  try {
-    const raw = localStorage.getItem("toyimbor-user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function setStoredUser(user) {
-  state.currentUser = user;
-  localStorage.setItem("toyimbor-user", JSON.stringify(user));
-}
-
-function formatMoney(value) {
-  return `${new Intl.NumberFormat("uz-UZ").format(Number(value || 0))} so'm`;
-}
-
-function formatDate(value) {
-  if (!value) return "Sana ko'rsatilmagan";
-  return new Intl.DateTimeFormat("uz-UZ", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
-
 function getParams() {
   return new URLSearchParams(window.location.search);
+}
+
+function buildNextTarget() {
+  return `${window.location.pathname}${window.location.search}`;
+}
+
+function buildAuthUrl(mode = "customer", next = buildNextTarget()) {
+  const params = new URLSearchParams();
+  if (mode) params.set("mode", mode);
+  if (next) params.set("next", next);
+  return `/auth?${params.toString()}`;
+}
+
+function redirectToAuth(mode = "customer", next = buildNextTarget()) {
+  window.location.href = buildAuthUrl(mode, next);
+}
+
+function redirectAfterAuth() {
+  const params = getParams();
+  const next = params.get("next");
+  if (next) {
+    window.location.href = next;
+    return;
+  }
+  window.location.href = state.authUser?.role === "vendor" ? "/admin" : "/dashboard";
+}
+
+function ensureRole(role) {
+  if (!state.authUser) {
+    redirectToAuth(role === "vendor" ? "vendor" : "customer");
+    return false;
+  }
+  if (role && state.authUser.role !== role) {
+    window.location.href = state.authUser.role === "vendor" ? "/admin" : "/dashboard";
+    return false;
+  }
+  return true;
 }
 
 function toast(message, type = "info") {
@@ -95,39 +103,124 @@ function toast(message, type = "info") {
   window.clearTimeout(container._timer);
   container._timer = window.setTimeout(() => {
     container.classList.remove("is-visible");
-  }, 3600);
+  }, 3400);
+}
+
+function formatMoney(value) {
+  return `${new Intl.NumberFormat("uz-UZ").format(Number(value || 0))} so'm`;
+}
+
+function formatDate(value) {
+  if (!value) return "Sana ko'rsatilmagan";
+  return new Intl.DateTimeFormat("uz-UZ", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderGlobalChrome() {
+  document.querySelectorAll(".site-header__actions").forEach((container) => {
+    if (!state.authUser) {
+      container.innerHTML = `
+        <a class="button button--ghost button--small" href="${buildAuthUrl("customer")}">Kirish</a>
+        <a class="button button--primary button--small" href="${buildAuthUrl("vendor", "/admin")}">Vendor login</a>
+      `;
+      return;
+    }
+
+    if (state.authUser.role === "vendor") {
+      container.innerHTML = `
+        <a class="button button--ghost button--small" href="/admin">Admin panel</a>
+        <button class="button button--primary button--small logout-button" type="button">Chiqish</button>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <a class="button button--ghost button--small" href="/dashboard">Kabinet</a>
+      <a class="button button--ghost button--small" href="/profile">${escapeHtml(
+        state.authUser.fullName || "Profil",
+      )}</a>
+      <button class="button button--primary button--small logout-button" type="button">Chiqish</button>
+    `;
+  });
+
+  const sidebarActions = document.getElementById("admin-session-actions");
+  if (sidebarActions) {
+    if (state.authUser?.role === "vendor") {
+      sidebarActions.innerHTML = `
+        <div class="notice notice--soft">
+          <strong>${escapeHtml(state.authUser.fullName || "Vendor")}</strong>
+          <div class="muted-text">${escapeHtml(state.authUser.email || "")}</div>
+        </div>
+        <button class="button button--ghost button--wide logout-button" type="button">Chiqish</button>
+      `;
+    } else {
+      sidebarActions.innerHTML = `
+        <a class="button button--ghost button--wide" href="${buildAuthUrl("vendor", "/admin")}">Vendor login</a>
+      `;
+    }
+  }
+
+  bindLogoutButtons();
+}
+
+function bindLogoutButtons() {
+  document.querySelectorAll(".logout-button").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        await api("/api/auth/logout", { method: "POST", body: JSON.stringify({}) });
+        state.authUser = null;
+        renderGlobalChrome();
+        window.location.href = "/";
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    };
+  });
 }
 
 function serviceCardTemplate(service, options = {}) {
-  const favoriteIds = new Set(state.currentUser?.favoriteServiceIds || []);
+  const favoriteIds = new Set(state.authUser?.favoriteServiceIds || []);
   const isFavorite = favoriteIds.has(service._id);
   const compact = options.compact ? " service-card--compact" : "";
+  const favoriteLabel = !state.authUser ? "Kirish" : isFavorite ? "Saralangan" : "Saralash";
   return `
     <article class="service-card${compact}">
       <div class="service-card__media">
-        <img src="${service.image}" alt="${service.name}" />
-        <span class="badge">${service.badge || "Verified"}</span>
+        <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.name)}" />
+        <span class="badge">${escapeHtml(service.badge || "Verified")}</span>
       </div>
       <div class="service-card__body">
         <div class="service-card__title">
           <div>
-            <h3>${service.name}</h3>
+            <h3>${escapeHtml(service.name)}</h3>
             <div class="service-card__meta">
-              <span>${service.city}, ${service.district || ""}</span>
-              <strong>${service.rating || 0}</strong>
+              <span>${escapeHtml(service.city || "")}${service.district ? `, ${escapeHtml(service.district)}` : ""}</span>
+              <strong>${escapeHtml(String(service.rating || 0))}</strong>
             </div>
           </div>
         </div>
-        <p class="muted-text">${service.shortDescription || ""}</p>
+        <p class="muted-text">${escapeHtml(service.shortDescription || "")}</p>
         <div class="chip-row">
           ${(service.nextOpenDates || [])
-            .map((slot) => `<span class="chip">${formatDate(slot.date)} · ${slot.slotsLeft} slot</span>`)
+            .map((slot) => `<span class="chip">${escapeHtml(formatDate(slot.date))} - ${slot.slotsLeft} slot</span>`)
             .join("")}
         </div>
         <div class="service-card__actions">
-          <a class="button button--primary" href="/booking?service=${service._id}">Bron qilish</a>
-          <button class="button button--ghost favorite-toggle" data-service="${service._id}" type="button">
-            ${isFavorite ? "Saralangan" : "Saralash"}
+          <a class="button button--primary" href="/booking?service=${encodeURIComponent(service._id)}">Bron qilish</a>
+          <button class="button button--ghost favorite-toggle" data-service="${escapeHtml(service._id)}" type="button">
+            ${favoriteLabel}
           </button>
         </div>
       </div>
@@ -136,43 +229,40 @@ function serviceCardTemplate(service, options = {}) {
 }
 
 async function toggleFavorite(serviceId) {
-  const userId = state.currentUser?._id || state.config.demoCustomerId;
-  const user = await api(`/api/users/${userId}/favorites`, {
+  if (!state.authUser || state.authUser.role !== "customer") {
+    redirectToAuth("customer");
+    return;
+  }
+  const user = await api(`/api/users/${state.authUser._id}/favorites`, {
     method: "POST",
     body: JSON.stringify({ serviceId }),
   });
-  setStoredUser({
-    ...state.currentUser,
-    ...user,
-  });
+  state.authUser = user;
+  renderGlobalChrome();
   toast("Saralanganlar yangilandi.");
 }
 
 function bindFavoriteToggles(root = document) {
   root.querySelectorAll(".favorite-toggle").forEach((button) => {
-    button.addEventListener("click", async () => {
+    button.onclick = async () => {
       try {
         await toggleFavorite(button.dataset.service);
-        if (document.body.dataset.page === "catalog") {
-          await initCatalog(true);
-        }
-        if (document.body.dataset.page === "profile") {
-          await initProfile(true);
-        }
-        if (document.body.dataset.page === "home") {
-          await initHome(true);
-        }
+        const page = document.body.dataset.page;
+        if (page === "home") await initHome(true);
+        if (page === "catalog") await initCatalog(true);
+        if (page === "profile") await initProfile(true);
       } catch (error) {
         toast(error.message, "error");
       }
-    });
+    };
   });
 }
 
 async function initHome(skipScroll = false) {
   const data = await api("/api/home");
-  const featured = document.getElementById("featured-services");
-  featured.innerHTML = data.featuredServices.map((service) => serviceCardTemplate(service)).join("");
+  document.getElementById("featured-services").innerHTML = data.featuredServices
+    .map((service) => serviceCardTemplate(service))
+    .join("");
   document.getElementById("stat-services").textContent = data.stats.serviceCount;
   document.getElementById("stat-customers").textContent = data.stats.customerCount;
   document.getElementById("stat-bookings").textContent = data.stats.bookingCount;
@@ -189,7 +279,7 @@ async function initHome(skipScroll = false) {
   };
 
   bindFavoriteToggles();
-  if (!skipScroll) window.scrollTo({ top: 0, behavior: "instant" });
+  if (!skipScroll) window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 async function initCatalog(refreshOnly = false) {
@@ -207,7 +297,6 @@ async function initCatalog(refreshOnly = false) {
     city: cityInput.value,
     category: categoryInput.value,
   });
-
   const data = await api(`/api/services?${query.toString()}`);
   document.getElementById("catalog-count").textContent = `${data.items.length} ta xizmat`;
   document.getElementById("catalog-grid").innerHTML = data.items
@@ -215,7 +304,7 @@ async function initCatalog(refreshOnly = false) {
     .join("");
 
   if (!refreshOnly) {
-    document.getElementById("catalog-filter-form").addEventListener("submit", (event) => {
+    document.getElementById("catalog-filter-form").onsubmit = (event) => {
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       const next = new URLSearchParams();
@@ -224,10 +313,74 @@ async function initCatalog(refreshOnly = false) {
       }
       history.replaceState({}, "", `/catalog?${next.toString()}`);
       initCatalog(true);
-    });
+    };
   }
 
   bindFavoriteToggles();
+}
+
+async function initAuth() {
+  if (state.authUser) {
+    redirectAfterAuth();
+    return;
+  }
+
+  const params = getParams();
+  const preferredMode = params.get("mode") === "vendor" ? "vendor" : "customer";
+  const registerForm = document.getElementById("register-form");
+  const loginForm = document.getElementById("login-form");
+  const roleSelect = document.getElementById("register-role");
+  const venueField = document.getElementById("register-venue-field");
+  const title = document.getElementById("auth-hero-title");
+  const subtitle = document.getElementById("auth-hero-subtitle");
+
+  function syncRoleUi() {
+    const vendorMode = roleSelect.value === "vendor";
+    venueField.classList.toggle("hidden", !vendorMode);
+    title.textContent = vendorMode ? "Vendor kirish va ro'yxatdan o'tish" : "Hisobga kirish";
+    subtitle.textContent = vendorMode
+      ? "Vendor sifatida kirib, xizmatlar, bronlar va galereyani real boshqaring."
+      : "Mijoz sifatida kirib, bronlar, profil va tavsiyalarni real ishlating.";
+  }
+
+  roleSelect.value = preferredMode;
+  syncRoleUi();
+  roleSelect.onchange = syncRoleUi;
+
+  loginForm.onsubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      const result = await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      state.authUser = result.user;
+      renderGlobalChrome();
+      redirectAfterAuth();
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  };
+
+  registerForm.onsubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      if (payload.role !== "vendor") {
+        delete payload.venueName;
+      }
+      const result = await api("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      state.authUser = result.user;
+      renderGlobalChrome();
+      redirectAfterAuth();
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  };
 }
 
 function setBookingStep(step) {
@@ -238,8 +391,7 @@ function setBookingStep(step) {
   const stepMap = {
     1: "booking-step-1",
     2: "booking-step-2",
-    3: "booking-step-3",
-    4: "booking-success",
+    3: "booking-success",
   };
   document.getElementById(stepMap[step]).classList.add("is-active");
 }
@@ -247,15 +399,15 @@ function setBookingStep(step) {
 function bookingPanelTemplate(service) {
   return `
     <div class="booking-service-panel__image">
-      <img src="${service.image}" alt="${service.name}" />
+      <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.name)}" />
     </div>
-    <p class="eyebrow">${service.category}</p>
-    <h2>${service.name}</h2>
-    <p class="muted-text">${service.description || service.shortDescription || ""}</p>
+    <p class="eyebrow">${escapeHtml(service.category || "")}</p>
+    <h2>${escapeHtml(service.name)}</h2>
+    <p class="muted-text">${escapeHtml(service.description || service.shortDescription || "")}</p>
     <div class="chip-row">
-      <span class="chip">${service.city}, ${service.district || ""}</span>
-      <span class="chip">Reyting ${service.rating || 0}</span>
-      <span class="chip">Sig'im ${service.capacity || "-"}</span>
+      <span class="chip">${escapeHtml(service.city || "")}${service.district ? `, ${escapeHtml(service.district)}` : ""}</span>
+      <span class="chip">Reyting ${escapeHtml(String(service.rating || 0))}</span>
+      <span class="chip">Sig'im ${escapeHtml(String(service.capacity || "-"))}</span>
     </div>
     <div class="section">
       <div class="section__heading">
@@ -267,70 +419,79 @@ function bookingPanelTemplate(service) {
       <div class="chip-row">
         ${(service.availability?.days || [])
           .filter((day) => day.status !== "full")
-          .slice(0, 8)
-          .map((day) => `<span class="chip">${day.day}-kun · ${day.slotsLeft} slot</span>`)
+          .slice(0, 10)
+          .map((day) => `<span class="chip">${day.day}-kun - ${day.slotsLeft} slot</span>`)
           .join("")}
       </div>
     </div>
   `;
 }
 
+function bookingStepOneTemplate() {
+  if (!state.authUser) {
+    return `
+      <p class="eyebrow">Qadam 1 / 3</p>
+      <h1>Akkaunt bilan davom eting</h1>
+      <p class="muted-text">Bron yuborishdan oldin tizimga kirish yoki ro'yxatdan o'tish kerak.</p>
+      <div class="stack-form">
+        <a class="button button--primary button--wide" href="${buildAuthUrl("customer", buildNextTarget())}">Kirish yoki ro'yxatdan o'tish</a>
+        <a class="button button--ghost button--wide" href="/catalog">Katalogga qaytish</a>
+      </div>
+    `;
+  }
+
+  return `
+    <p class="eyebrow">Qadam 1 / 3</p>
+    <h1>Akkaunt tasdiqlandi</h1>
+    <div class="account-summary">
+      <div>
+        <span>Ism</span>
+        <strong>${escapeHtml(state.authUser.fullName || "")}</strong>
+      </div>
+      <div>
+        <span>Telefon</span>
+        <strong>${escapeHtml(state.authUser.phone || "")}</strong>
+      </div>
+      <div>
+        <span>Email</span>
+        <strong>${escapeHtml(state.authUser.email || "")}</strong>
+      </div>
+    </div>
+    <button id="booking-account-continue" class="button button--primary button--wide" type="button">Bron tafsilotlariga o'tish</button>
+  `;
+}
+
 async function initBooking() {
-  const params = getParams();
-  const serviceId = params.get("service") || "svc-venue-silk-garden";
-  const service = await api(`/api/services/${serviceId}?month=${state.config.defaultMonth}`);
+  const serviceId = getParams().get("service");
+  if (!serviceId) {
+    window.location.href = "/catalog";
+    return;
+  }
+
+  const service = await api(`/api/services/${encodeURIComponent(serviceId)}?month=${state.config.defaultMonth}`);
   state.activeService = service;
   document.getElementById("booking-service-panel").innerHTML = bookingPanelTemplate(service);
+  document.getElementById("booking-step-1-content").innerHTML = bookingStepOneTemplate();
 
+  if (!state.authUser) {
+    setBookingStep(1);
+    return;
+  }
+  if (state.authUser.role !== "customer") {
+    window.location.href = "/admin";
+    return;
+  }
+
+  document.getElementById("booking-account-continue").onclick = () => setBookingStep(2);
   const firstOpen = (service.availability?.days || []).find((day) => day.status !== "full");
   document.getElementById("booking-date").value = firstOpen?.date || state.config.today;
 
-  document.getElementById("request-code-form").addEventListener("submit", async (event) => {
+  document.getElementById("booking-form").onsubmit = async (event) => {
     event.preventDefault();
     try {
-      const phone = document.getElementById("booking-phone").value.trim();
-      const result = await api("/api/auth/request-code", {
-        method: "POST",
-        body: JSON.stringify({ phone }),
-      });
-      state.lastPhone = result.phone;
-      const hint = document.getElementById("booking-code-hint");
-      if (result.demoCode) {
-        hint.classList.remove("hidden");
-        hint.textContent = `Demo SMS kodi: ${result.demoCode}`;
-      }
-      setBookingStep(2);
-    } catch (error) {
-      toast(error.message, "error");
-    }
-  });
-
-  document.getElementById("verify-code-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    try {
-      const code = document.getElementById("booking-code").value.trim();
-      const result = await api("/api/auth/verify-code", {
-        method: "POST",
-        body: JSON.stringify({
-          phone: state.lastPhone,
-          code,
-        }),
-      });
-      setStoredUser(result.user);
-      setBookingStep(3);
-    } catch (error) {
-      toast(error.message, "error");
-    }
-  });
-
-  document.getElementById("booking-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    try {
-      const form = new FormData(event.currentTarget);
       const payload = {
-        userId: state.currentUser._id,
         serviceId: service._id,
-        eventDate: form.get("booking-date") || document.getElementById("booking-date").value,
+        eventDate: document.getElementById("booking-date").value,
         slot: document.getElementById("booking-slot").value,
         guestCount: document.getElementById("booking-guests").value,
         note: document.getElementById("booking-note").value,
@@ -341,30 +502,28 @@ async function initBooking() {
       });
       document.getElementById(
         "booking-success-text",
-      ).textContent = `${booking.serviceName} uchun ${formatDate(
-        booking.eventDate,
-      )} sanasiga so'rov yuborildi. Holat: ${booking.statusLabel}.`;
-      setBookingStep(4);
+      ).textContent = `${booking.serviceName} uchun ${formatDate(booking.eventDate)} sanasiga so'rov yuborildi. Holat: ${booking.statusLabel}.`;
+      setBookingStep(3);
     } catch (error) {
       toast(error.message, "error");
     }
-  });
+  };
 }
 
 function bookingCardTemplate(item) {
   return `
     <article class="booking-list__card">
-      <img src="${item.serviceImage}" alt="${item.serviceName}" />
+      <img src="${escapeHtml(item.serviceImage)}" alt="${escapeHtml(item.serviceName)}" />
       <div>
         <div class="section__heading">
           <div>
-            <h3>${item.serviceName}</h3>
-            <p class="muted-text">${formatDate(item.eventDate)} · ${item.slot}</p>
+            <h3>${escapeHtml(item.serviceName)}</h3>
+            <p class="muted-text">${escapeHtml(formatDate(item.eventDate))} - ${escapeHtml(item.slot)}</p>
           </div>
-          <span class="status-pill status-pill--${item.status}">${item.status}</span>
+          <span class="status-pill status-pill--${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
         </div>
-        <p class="booking-list__text">${item.serviceCategory} · ${item.city}</p>
-        <p class="booking-list__text">Jami: ${formatMoney(item.total)}</p>
+        <p class="booking-list__text">${escapeHtml(item.serviceCategory)} - ${escapeHtml(item.city || "")}</p>
+        <p class="booking-list__text">Jami: ${escapeHtml(formatMoney(item.total))}</p>
       </div>
     </article>
   `;
@@ -376,19 +535,19 @@ function packageTemplate(pkg) {
       <div class="section__heading">
         <div>
           <p class="eyebrow">${pkg.withinBudget ? "Byudjetga mos" : "Byudjetdan yuqori"}</p>
-          <h3>${pkg.title}</h3>
+          <h3>${escapeHtml(pkg.title)}</h3>
         </div>
-        <strong>${formatMoney(pkg.total)}</strong>
+        <strong>${escapeHtml(formatMoney(pkg.total))}</strong>
       </div>
-      <p class="muted-text">${pkg.mood}</p>
+      <p class="muted-text">${escapeHtml(pkg.mood)}</p>
       <div class="package-card__services">
         ${pkg.services
           .map(
             (service) => `
-            <div class="package-card__row">
-              <span>${service.name} · ${service.category}</span>
-              <strong>${formatMoney(service.price)}</strong>
-            </div>`,
+              <div class="package-card__row">
+                <span>${escapeHtml(service.name)} - ${escapeHtml(service.category)}</span>
+                <strong>${escapeHtml(formatMoney(service.price))}</strong>
+              </div>`,
           )
           .join("")}
       </div>
@@ -397,27 +556,29 @@ function packageTemplate(pkg) {
 }
 
 async function initDashboard() {
-  const bootstrap = await api(`/api/dashboard/bootstrap?userId=${state.currentUser._id}`);
-  const user = bootstrap.user;
-  setStoredUser(user);
-  document.getElementById("dashboard-title").textContent = `${user.fullName} uchun boshqaruv paneli`;
+  if (!ensureRole("customer")) return;
+
+  const bootstrap = await api("/api/dashboard/bootstrap");
+  state.authUser = bootstrap.user;
+  renderGlobalChrome();
+  document.getElementById("dashboard-title").textContent = `${bootstrap.user.fullName} uchun boshqaruv paneli`;
   document.getElementById("dashboard-bookings").innerHTML =
     bootstrap.bookings.length > 0
       ? bootstrap.bookings.map((item) => bookingCardTemplate(item)).join("")
       : `<div class="notice">Hozircha bronlar yo'q. Katalogdan xizmat tanlab ko'ring.</div>`;
 
   const recommendationForm = document.getElementById("recommendation-form");
-  recommendationForm.elements.namedItem("location").value = user.city || "Toshkent";
-  recommendationForm.elements.namedItem("budget").value = user.budget || 90000000;
-  recommendationForm.elements.namedItem("guestCount").value = user.guestCount || 220;
-  recommendationForm.elements.namedItem("eventDate").value = user.weddingDate || state.config.today;
-  recommendationForm.elements.namedItem("style").value = user.style || "zamonaviy";
+  recommendationForm.elements.namedItem("location").value = bootstrap.user.city || "Toshkent";
+  recommendationForm.elements.namedItem("budget").value = bootstrap.user.budget || 90000000;
+  recommendationForm.elements.namedItem("guestCount").value = bootstrap.user.guestCount || 220;
+  recommendationForm.elements.namedItem("eventDate").value =
+    bootstrap.user.weddingDate || state.config.today;
+  recommendationForm.elements.namedItem("style").value = bootstrap.user.style || "zamonaviy";
 
-  recommendationForm.addEventListener("submit", async (event) => {
+  recommendationForm.onsubmit = async (event) => {
     event.preventDefault();
     try {
-      const form = new FormData(event.currentTarget);
-      const payload = Object.fromEntries(form.entries());
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
       const result = await api("/api/recommendations", {
         method: "POST",
         body: JSON.stringify(payload),
@@ -428,15 +589,19 @@ async function initDashboard() {
     } catch (error) {
       toast(error.message, "error");
     }
-  });
+  };
 
   recommendationForm.dispatchEvent(new Event("submit"));
 }
 
 async function initProfile(refreshOnly = false) {
-  const user = await api(`/api/users/${state.currentUser._id}`);
-  setStoredUser(user);
+  if (!ensureRole("customer")) return;
+
+  const user = await api(`/api/users/${state.authUser._id}`);
+  state.authUser = user;
+  renderGlobalChrome();
   document.getElementById("profile-hero-name").textContent = user.fullName;
+
   const form = document.getElementById("profile-form");
   form.elements.namedItem("fullName").value = user.fullName || "";
   form.elements.namedItem("phone").value = user.phone || "";
@@ -453,20 +618,21 @@ async function initProfile(refreshOnly = false) {
       : `<div class="notice">Hozircha saralangan xizmatlar yo'q.</div>`;
 
   if (!refreshOnly) {
-    form.addEventListener("submit", async (event) => {
+    form.onsubmit = async (event) => {
       event.preventDefault();
       try {
         const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
-        const updated = await api(`/api/users/${state.currentUser._id}`, {
+        const updated = await api(`/api/users/${state.authUser._id}`, {
           method: "PATCH",
           body: JSON.stringify(payload),
         });
-        setStoredUser(updated);
+        state.authUser = updated;
+        renderGlobalChrome();
         toast("Profil saqlandi.");
       } catch (error) {
         toast(error.message, "error");
       }
-    });
+    };
   }
 
   bindFavoriteToggles();
@@ -475,9 +641,9 @@ async function initProfile(refreshOnly = false) {
 function summaryCardTemplate(label, value, accent = "") {
   return `
     <article class="stat-card">
-      <span>${label}</span>
-      <strong>${value}</strong>
-      ${accent ? `<p class="muted-text">${accent}</p>` : ""}
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      ${accent ? `<p class="muted-text">${escapeHtml(accent)}</p>` : ""}
     </article>
   `;
 }
@@ -486,16 +652,16 @@ function adminBookingRowTemplate(booking) {
   return `
     <tr>
       <td>
-        <strong>${booking.customerName}</strong>
-        <div class="muted-text">${booking.phone}</div>
+        <strong>${escapeHtml(booking.customerName)}</strong>
+        <div class="muted-text">${escapeHtml(booking.phone || "")}</div>
       </td>
-      <td>${booking.serviceName}</td>
-      <td>${formatDate(booking.eventDate)} · ${booking.slot}</td>
-      <td><span class="status-pill status-pill--${booking.status}">${booking.status}</span></td>
+      <td>${escapeHtml(booking.serviceName)}</td>
+      <td>${escapeHtml(formatDate(booking.eventDate))} - ${escapeHtml(booking.slot)}</td>
+      <td><span class="status-pill status-pill--${escapeHtml(booking.status)}">${escapeHtml(booking.status)}</span></td>
       <td>
         <div class="cluster">
-          <button class="button button--ghost button--small admin-booking-status" data-id="${booking._id}" data-status="confirmed" type="button">Tasdiqlash</button>
-          <button class="button button--ghost button--small admin-booking-status" data-id="${booking._id}" data-status="cancelled" type="button">Bekor qilish</button>
+          <button class="button button--ghost button--small admin-booking-status" data-id="${escapeHtml(booking._id)}" data-status="confirmed" type="button">Tasdiqlash</button>
+          <button class="button button--ghost button--small admin-booking-status" data-id="${escapeHtml(booking._id)}" data-status="cancelled" type="button">Bekor qilish</button>
         </div>
       </td>
     </tr>
@@ -506,12 +672,12 @@ function calendarCellTemplate(day) {
   return `
     <article class="calendar-day">
       <div>
-        <strong>${day.day}</strong>
-        <p class="muted-text">${day.bookingCount} ta bron</p>
+        <strong>${escapeHtml(String(day.day))}</strong>
+        <p class="muted-text">${escapeHtml(String(day.bookingCount))} ta bron</p>
       </div>
       <div>
-        <div class="calendar-day__status calendar-day__status--${day.status}"></div>
-        <p class="muted-text">${day.slotsLeft} ta bo'sh slot</p>
+        <div class="calendar-day__status calendar-day__status--${escapeHtml(day.status)}"></div>
+        <p class="muted-text">${escapeHtml(String(day.slotsLeft))} ta bo'sh slot</p>
       </div>
     </article>
   `;
@@ -519,10 +685,10 @@ function calendarCellTemplate(day) {
 
 function adminServiceCardTemplate(service, activeServiceId) {
   return `
-    <article class="admin-service-item ${service._id === activeServiceId ? "is-active" : ""}" data-id="${service._id}">
-      <p class="eyebrow">${service.category}</p>
-      <h3>${service.name}</h3>
-      <p class="muted-text">${service.city} · ${service.district || "-"}</p>
+    <article class="admin-service-item ${service._id === activeServiceId ? "is-active" : ""}" data-id="${escapeHtml(service._id)}">
+      <p class="eyebrow">${escapeHtml(service.category)}</p>
+      <h3>${escapeHtml(service.name)}</h3>
+      <p class="muted-text">${escapeHtml(service.city || "")} - ${escapeHtml(service.district || "-")}</p>
     </article>
   `;
 }
@@ -530,7 +696,7 @@ function adminServiceCardTemplate(service, activeServiceId) {
 function galleryItemTemplate(item) {
   return `
     <div class="gallery-grid__item">
-      <img src="${item.url}" alt="Service gallery" />
+      <img src="${escapeHtml(item.url)}" alt="Service gallery" />
     </div>
   `;
 }
@@ -555,22 +721,25 @@ function fillServiceForm(service) {
 }
 
 async function refreshAdmin(serviceId = state.admin.activeServiceId, month = state.admin.month) {
-  const data = await api(
-    `/api/admin/bootstrap?vendorId=${state.admin.vendorId}&month=${month}&serviceId=${serviceId || ""}`,
-  );
-  state.admin.services = data.services;
+  const query = new URLSearchParams();
+  query.set("month", month || state.config.defaultMonth);
+  if (serviceId) query.set("serviceId", serviceId);
+  const data = await api(`/api/admin/bootstrap?${query.toString()}`);
+
   state.admin.activeServiceId = data.activeService?._id || data.services[0]?._id || "";
-  state.admin.month = data.month;
+  state.admin.month = data.month || state.config.defaultMonth;
+  state.authUser = data.vendor || state.authUser;
+  renderGlobalChrome();
 
   document.getElementById("admin-vendor-name").textContent =
     data.vendor?.venueName || data.vendor?.fullName || "Vendor admin";
   document.getElementById("cloudinary-state").textContent = data.cloudinaryEnabled
     ? "Cloudinary upload tayyor"
-    : "Cloudinary sozlanmagan: URL yoki demo rasm bilan ishlang";
+    : "Cloudinary sozlanmagan. Fayl upload uchun .env ni to'ldiring.";
 
   document.getElementById("admin-summary").innerHTML = [
-    summaryCardTemplate("Bronlar", data.summary.bookingCount, "Faol buyurtmalar soni"),
-    summaryCardTemplate("Kutayotganlar", data.summary.pendingCount, "Tezkor ko'rib chiqish"),
+    summaryCardTemplate("Bronlar", String(data.summary.bookingCount), "Faol buyurtmalar soni"),
+    summaryCardTemplate("Kutayotganlar", String(data.summary.pendingCount), "Tezkor ko'rib chiqish"),
     summaryCardTemplate("Tushum", formatMoney(data.summary.revenue), "Tasdiqlangan bronlar bo'yicha"),
     summaryCardTemplate("Bandlik", `${data.summary.occupancyRate}%`, `${data.summary.serviceCount} ta xizmat`),
   ].join("");
@@ -581,21 +750,24 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
   document.getElementById("calendar-service").innerHTML = data.services
     .map(
       (service) =>
-        `<option value="${service._id}" ${service._id === state.admin.activeServiceId ? "selected" : ""}>${service.name}</option>`,
+        `<option value="${escapeHtml(service._id)}" ${service._id === state.admin.activeServiceId ? "selected" : ""}>${escapeHtml(service.name)}</option>`,
     )
     .join("");
   document.getElementById("calendar-month").value = state.admin.month;
   document.getElementById("admin-calendar-grid").innerHTML =
     data.activeService?.availability?.days.map((day) => calendarCellTemplate(day)).join("") ||
-    `<div class="notice">Kalendar uchun venue topilmadi.</div>`;
+    `<div class="notice">Kalendar uchun to'yxona xizmati topilmadi.</div>`;
   document.getElementById("admin-service-list").innerHTML = data.services
     .map((service) => adminServiceCardTemplate(service, state.admin.activeServiceId))
     .join("");
+
   if (data.activeService) {
     fillServiceForm(data.activeService);
     document.getElementById("admin-gallery").innerHTML = (data.activeService.gallery || [])
       .map((item) => galleryItemTemplate(item))
       .join("");
+  } else {
+    document.getElementById("admin-gallery").innerHTML = "";
   }
 
   bindAdminInteractions();
@@ -610,7 +782,7 @@ function bindAdminInteractions() {
           body: JSON.stringify({ status: button.dataset.status }),
         });
         toast("Bron holati yangilandi.");
-        refreshAdmin();
+        await refreshAdmin();
       } catch (error) {
         toast(error.message, "error");
       }
@@ -626,33 +798,33 @@ function bindAdminInteractions() {
 }
 
 async function initAdmin() {
-  state.admin.vendorId = state.config.demoVendorId || "usr-vendor-silk";
+  if (!ensureRole("vendor")) return;
+
   state.admin.month = state.config.defaultMonth;
   await refreshAdmin();
 
-  document.getElementById("calendar-refresh").addEventListener("click", async () => {
+  document.getElementById("calendar-refresh").onclick = async () => {
     state.admin.activeServiceId = document.getElementById("calendar-service").value;
     state.admin.month = document.getElementById("calendar-month").value || state.config.defaultMonth;
     await refreshAdmin(state.admin.activeServiceId, state.admin.month);
-  });
+  };
 
-  document.getElementById("calendar-service").addEventListener("change", async (event) => {
+  document.getElementById("calendar-service").onchange = async (event) => {
     state.admin.activeServiceId = event.target.value;
     await refreshAdmin(state.admin.activeServiceId, state.admin.month);
-  });
+  };
 
-  document.getElementById("calendar-month").addEventListener("change", async (event) => {
+  document.getElementById("calendar-month").onchange = async (event) => {
     state.admin.month = event.target.value || state.config.defaultMonth;
     await refreshAdmin(state.admin.activeServiceId, state.admin.month);
-  });
+  };
 
-  document.getElementById("create-service-button").addEventListener("click", async (event) => {
+  document.getElementById("create-service-button").onclick = async (event) => {
     event.preventDefault();
     try {
       const created = await api("/api/services", {
         method: "POST",
         body: JSON.stringify({
-          vendorId: state.admin.vendorId,
           name: "Yangi xizmat",
           type: "venue",
           category: "To'yxona",
@@ -664,9 +836,9 @@ async function initAdmin() {
     } catch (error) {
       toast(error.message, "error");
     }
-  });
+  };
 
-  document.getElementById("admin-service-form").addEventListener("submit", async (event) => {
+  document.getElementById("admin-service-form").onsubmit = async (event) => {
     event.preventDefault();
     try {
       const form = event.currentTarget;
@@ -702,9 +874,9 @@ async function initAdmin() {
     } catch (error) {
       toast(error.message, "error");
     }
-  });
+  };
 
-  document.getElementById("admin-image-upload-form").addEventListener("submit", async (event) => {
+  document.getElementById("admin-image-upload-form").onsubmit = async (event) => {
     event.preventDefault();
     try {
       if (!state.admin.activeServiceId) {
@@ -723,5 +895,5 @@ async function initAdmin() {
     } catch (error) {
       toast(error.message, "error");
     }
-  });
+  };
 }

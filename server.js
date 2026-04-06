@@ -1,10 +1,14 @@
 require("dotenv").config();
 
+const crypto = require("crypto");
 const express = require("express");
 const path = require("path");
+const { promisify } = require("util");
 const { MongoClient } = require("mongodb");
 const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
+
+const scryptAsync = promisify(crypto.scrypt);
 
 const app = express();
 const upload = multer({
@@ -17,7 +21,8 @@ const upload = multer({
 const PORT = Number(process.env.PORT || 3000);
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 const MONGODB_DB = process.env.MONGODB_DB || "toyimbor";
-const TODAY = process.env.APP_TODAY || "2026-04-04";
+const APP_TIMEZONE = process.env.APP_TIMEZONE || "Asia/Tashkent";
+const TODAY = process.env.APP_TODAY || new Intl.DateTimeFormat("en-CA", { timeZone: APP_TIMEZONE }).format(new Date());
 const CLOUDINARY_ENABLED = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME &&
     process.env.CLOUDINARY_API_KEY &&
@@ -25,6 +30,18 @@ const CLOUDINARY_ENABLED = Boolean(
 );
 const DEFAULT_MONTH = TODAY.slice(0, 7);
 const SITE_DIR = path.join(__dirname, "public");
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || "toyimbor_session";
+const SESSION_TTL_DAYS = Number(process.env.SESSION_TTL_DAYS || 30);
+const SESSION_SECRET = process.env.SESSION_SECRET || "change-this-session-secret";
+const SESSION_SECURE = String(process.env.SESSION_SECURE || "false") === "true";
+const ALLOW_MEMORY_FALLBACK = String(process.env.ALLOW_MEMORY_FALLBACK || "false") === "true";
+const SEED_SAMPLE_DATA = String(process.env.SEED_SAMPLE_DATA || "true") === "true";
+const SEED_CUSTOMER_ID = "usr-customer-aziza";
+const SEED_VENDOR_ID = "usr-vendor-silk";
+const SEED_CUSTOMER_EMAIL = process.env.SEED_CUSTOMER_EMAIL || "customer@toyimbor.uz";
+const SEED_CUSTOMER_PASSWORD = process.env.SEED_CUSTOMER_PASSWORD || "Customer123!";
+const SEED_VENDOR_EMAIL = process.env.SEED_VENDOR_EMAIL || "vendor@toyimbor.uz";
+const SEED_VENDOR_PASSWORD = process.env.SEED_VENDOR_PASSWORD || "Vendor123!";
 
 if (CLOUDINARY_ENABLED) {
   cloudinary.config({
@@ -36,19 +53,22 @@ if (CLOUDINARY_ENABLED) {
 
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  req.cookies = parseCookies(req.headers.cookie || "");
+  next();
+});
 app.use(express.static(SITE_DIR));
 
 let mongoClient = null;
 let mongoDb = null;
 let databaseMode = "memory";
 let memoryStore = createSeedState();
-const otpStore = new Map();
 
 function createSeedState() {
   return {
     users: [
       {
-        _id: "usr-demo-customer",
+        _id: SEED_CUSTOMER_ID,
         role: "customer",
         fullName: "Aziza Karimova",
         phone: "+998901234567",
@@ -67,7 +87,7 @@ function createSeedState() {
         updatedAt: "2026-04-04T08:00:00.000Z",
       },
       {
-        _id: "usr-vendor-silk",
+        _id: SEED_VENDOR_ID,
         role: "vendor",
         fullName: "Silk Garden Admin",
         phone: "+998971112233",
@@ -380,8 +400,8 @@ function createSeedState() {
     bookings: [
       {
         _id: "bkg-1001",
-        userId: "usr-demo-customer",
-        vendorId: "usr-vendor-silk",
+        userId: SEED_CUSTOMER_ID,
+        vendorId: SEED_VENDOR_ID,
         serviceId: "svc-venue-silk-garden",
         customerName: "Aziza Karimova",
         phone: "+998901234567",
@@ -397,8 +417,8 @@ function createSeedState() {
       },
       {
         _id: "bkg-1002",
-        userId: "usr-demo-customer",
-        vendorId: "usr-vendor-silk",
+        userId: SEED_CUSTOMER_ID,
+        vendorId: SEED_VENDOR_ID,
         serviceId: "svc-photo-dilshod",
         customerName: "Aziza Karimova",
         phone: "+998901234567",
@@ -414,8 +434,8 @@ function createSeedState() {
       },
       {
         _id: "bkg-1003",
-        userId: "usr-demo-customer",
-        vendorId: "usr-vendor-silk",
+        userId: SEED_CUSTOMER_ID,
+        vendorId: SEED_VENDOR_ID,
         serviceId: "svc-catering-lazzat",
         customerName: "Aziza Karimova",
         phone: "+998901234567",
@@ -566,6 +586,7 @@ function createSeedState() {
         updatedAt: "2026-03-18T10:00:00.000Z",
       },
     ],
+    sessions: [],
   };
 }
 
@@ -577,12 +598,31 @@ function clone(value) {
   return structuredClone(value);
 }
 
+function parseCookies(header = "") {
+  return header
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .reduce((acc, pair) => {
+      const index = pair.indexOf("=");
+      if (index === -1) return acc;
+      const key = decodeURIComponent(pair.slice(0, index));
+      const value = decodeURIComponent(pair.slice(index + 1));
+      acc[key] = value;
+      return acc;
+    }, {});
+}
+
 function normalisePhone(phone = "") {
   const digits = String(phone).replace(/\D/g, "");
   if (!digits) return "";
   if (digits.startsWith("998")) return `+${digits}`;
   if (digits.length === 9) return `+998${digits}`;
   return `+${digits}`;
+}
+
+function normaliseEmail(email = "") {
+  return String(email).trim().toLowerCase();
 }
 
 function toSlug(value = "") {
@@ -603,34 +643,124 @@ function buildId(prefix) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function hashSessionValue(sessionId, token) {
+  return crypto
+    .createHmac("sha256", SESSION_SECRET)
+    .update(`${sessionId}.${token}`)
+    .digest("hex");
+}
+
+function buildSessionCookieValue(sessionId, token) {
+  return `${sessionId}.${token}`;
+}
+
+function getSessionExpiryDate() {
+  return new Date(Date.now() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
+}
+
+function setSessionCookie(res, sessionId, token, expiresAt) {
+  const parts = [
+    `${SESSION_COOKIE_NAME}=${encodeURIComponent(buildSessionCookieValue(sessionId, token))}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Expires=${expiresAt.toUTCString()}`,
+  ];
+  if (SESSION_SECURE) parts.push("Secure");
+  res.setHeader("Set-Cookie", parts.join("; "));
+}
+
+function clearSessionCookie(res) {
+  const parts = [
+    `${SESSION_COOKIE_NAME}=`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+  ];
+  if (SESSION_SECURE) parts.push("Secure");
+  res.setHeader("Set-Cookie", parts.join("; "));
+}
+
+async function createPasswordHash(password, salt = crypto.randomBytes(16).toString("hex")) {
+  const derived = await scryptAsync(password, salt, 64);
+  return {
+    salt,
+    hash: derived.toString("hex"),
+  };
+}
+
+async function verifyPassword(password, salt, expectedHash) {
+  const { hash } = await createPasswordHash(password, salt);
+  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(expectedHash, "hex"));
+}
+
+function sanitizeUser(user) {
+  if (!user) return null;
+  const {
+    passwordHash,
+    passwordSalt,
+    emailNormalized,
+    phoneNormalized,
+    sessions,
+    ...safeUser
+  } = user;
+  return safeUser;
+}
+
 async function connectDatabase() {
   try {
     mongoClient = new MongoClient(MONGODB_URI, {
-      serverSelectionTimeoutMS: 1500,
+      serverSelectionTimeoutMS: 10000,
     });
     await mongoClient.connect();
     mongoDb = mongoClient.db(MONGODB_DB);
     await mongoDb.command({ ping: 1 });
     databaseMode = "mongo";
     await ensureSeedData();
+    await ensureIndexes();
+    await ensureSeedAccounts();
     console.log(`[db] MongoDB connected: ${MONGODB_URI}/${MONGODB_DB}`);
   } catch (error) {
+    if (!ALLOW_MEMORY_FALLBACK) {
+      throw new Error(
+        `MongoDB bilan ulanish muvaffaqiyatsiz: ${error.message}. .env dagi MONGODB_URI ni tekshiring.`,
+      );
+    }
     databaseMode = "memory";
     memoryStore = createSeedState();
     console.warn(`[db] MongoDB unavailable, fallback memory mode: ${error.message}`);
+    await ensureSeedAccounts();
   }
 }
 
 async function ensureSeedData() {
-  if (databaseMode !== "mongo" || !mongoDb) return;
+  if (databaseMode !== "mongo" || !mongoDb || !SEED_SAMPLE_DATA) return;
   const seed = createSeedState();
   for (const name of Object.keys(seed)) {
     const collection = mongoDb.collection(name);
     const count = await collection.countDocuments();
-    if (count === 0) {
+    if (count === 0 && seed[name].length > 0) {
       await collection.insertMany(seed[name]);
     }
   }
+}
+
+async function ensureIndexes() {
+  if (databaseMode !== "mongo" || !mongoDb) return;
+  await Promise.all([
+    mongoDb.collection("users").createIndex(
+      { emailNormalized: 1 },
+      { unique: true, partialFilterExpression: { emailNormalized: { $exists: true, $type: "string" } } },
+    ),
+    mongoDb.collection("users").createIndex(
+      { phoneNormalized: 1 },
+      { unique: true, partialFilterExpression: { phoneNormalized: { $exists: true, $type: "string" } } },
+    ),
+    mongoDb.collection("users").createIndex({ "sessions.id": 1 }),
+    mongoDb.collection("bookings").createIndex({ serviceId: 1, eventDate: 1 }),
+    mongoDb.collection("bookings").createIndex({ vendorId: 1, eventDate: 1 }),
+  ]);
 }
 
 async function readCollection(name) {
@@ -645,6 +775,13 @@ async function findById(name, id) {
     return mongoDb.collection(name).findOne({ _id: id });
   }
   return clone(memoryStore[name].find((item) => item._id === id) || null);
+}
+
+async function findOne(name, matcher, mongoQuery = null) {
+  if (databaseMode === "mongo" && mongoDb) {
+    return mongoDb.collection(name).findOne(mongoQuery || {});
+  }
+  return clone(memoryStore[name].find(matcher) || null);
 }
 
 async function upsertRecord(name, record) {
@@ -664,6 +801,14 @@ async function upsertRecord(name, record) {
     memoryStore[name][index] = clone(record);
   }
   return record;
+}
+
+async function deleteRecord(name, id) {
+  if (databaseMode === "mongo" && mongoDb) {
+    await mongoDb.collection(name).deleteOne({ _id: id });
+    return;
+  }
+  memoryStore[name] = memoryStore[name].filter((item) => item._id !== id);
 }
 
 async function listServices(filters = {}) {
@@ -796,8 +941,202 @@ async function getUserWithFavorites(userId) {
       image: service.heroImage || service.gallery?.[0]?.url || "",
     }));
   return {
-    ...user,
+    ...sanitizeUser(user),
     favorites,
+  };
+}
+
+async function ensureSeedAccounts() {
+  const accounts = [
+    {
+      id: SEED_CUSTOMER_ID,
+      role: "customer",
+      fullName: "Aziza Karimova",
+      email: SEED_CUSTOMER_EMAIL,
+      phone: "+998901234567",
+      password: SEED_CUSTOMER_PASSWORD,
+      city: "Toshkent",
+    },
+    {
+      id: SEED_VENDOR_ID,
+      role: "vendor",
+      fullName: "Silk Garden Admin",
+      email: SEED_VENDOR_EMAIL,
+      phone: "+998971112233",
+      password: SEED_VENDOR_PASSWORD,
+      city: "Toshkent",
+      venueName: "Silk Garden Hall",
+    },
+  ];
+
+  for (const account of accounts) {
+    const emailNormalized = normaliseEmail(account.email);
+    const phoneNormalized = normalisePhone(account.phone);
+    const existing =
+      (await findById("users", account.id)) ||
+      (await findOne(
+        "users",
+        (user) =>
+          normaliseEmail(user.email) === emailNormalized ||
+          normalisePhone(user.phone) === phoneNormalized,
+        {
+          $or: [{ emailNormalized }, { phoneNormalized }],
+        },
+      ));
+    if (!existing) continue;
+    const next = {
+      ...existing,
+      role: existing.role || account.role,
+      fullName: existing.fullName || account.fullName,
+      email: account.email,
+      emailNormalized,
+      phone: existing.phone || account.phone,
+      phoneNormalized,
+      city: existing.city || account.city,
+      venueName: existing.venueName || account.venueName || "",
+      sessions: Array.isArray(existing.sessions) ? existing.sessions : [],
+      updatedAt: nowIso(),
+    };
+    if (!existing.passwordHash || !existing.passwordSalt) {
+      const passwordInfo = await createPasswordHash(account.password);
+      next.passwordHash = passwordInfo.hash;
+      next.passwordSalt = passwordInfo.salt;
+    }
+    await upsertRecord("users", next);
+  }
+}
+
+function pruneSessions(sessions = []) {
+  return sessions.filter((session) => new Date(session.expiresAt).getTime() > Date.now()).slice(-10);
+}
+
+async function findUserBySession(sessionId, tokenHash = null) {
+  return findOne(
+    "users",
+    (user) =>
+      (user.sessions || []).some(
+        (session) =>
+          session.id === sessionId && (tokenHash ? session.tokenHash === tokenHash : true),
+      ),
+    tokenHash
+      ? { sessions: { $elemMatch: { id: sessionId, tokenHash } } }
+      : { "sessions.id": sessionId },
+  );
+}
+
+async function findUserByIdentifier(identifier) {
+  const emailNormalized = normaliseEmail(identifier);
+  const phoneNormalized = normalisePhone(identifier);
+  return findOne(
+    "users",
+    (user) =>
+      user.emailNormalized === emailNormalized ||
+      user.phoneNormalized === phoneNormalized ||
+      normaliseEmail(user.email) === emailNormalized ||
+      normalisePhone(user.phone) === phoneNormalized,
+    {
+      $or: [{ emailNormalized }, { phoneNormalized }],
+    },
+  );
+}
+
+async function createSessionForUser(user, res) {
+  const sessionId = buildId("ses");
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = getSessionExpiryDate();
+  const session = {
+    id: sessionId,
+    tokenHash: hashSessionValue(sessionId, token),
+    createdAt: nowIso(),
+    lastSeenAt: nowIso(),
+    expiresAt: expiresAt.toISOString(),
+  };
+  await upsertRecord("users", {
+    ...user,
+    sessions: [...pruneSessions(user.sessions || []), session],
+    updatedAt: nowIso(),
+  });
+  setSessionCookie(res, sessionId, token, expiresAt);
+}
+
+async function destroySession(req, res) {
+  const cookie = req.cookies?.[SESSION_COOKIE_NAME];
+  if (cookie) {
+    const [sessionId] = cookie.split(".");
+    if (sessionId) {
+      const user = await findUserBySession(sessionId);
+      if (user) {
+        await upsertRecord("users", {
+          ...user,
+          sessions: (user.sessions || []).filter((session) => session.id !== sessionId),
+          updatedAt: nowIso(),
+        });
+      }
+    }
+  }
+  clearSessionCookie(res);
+}
+
+async function resolveAuthUser(req) {
+  const cookie = req.cookies?.[SESSION_COOKIE_NAME];
+  if (!cookie) return null;
+  const [sessionId, token] = cookie.split(".");
+  if (!sessionId || !token) return null;
+  const tokenHash = hashSessionValue(sessionId, token);
+  const user = await findUserBySession(sessionId, tokenHash);
+  if (!user) return null;
+  const session = (user.sessions || []).find(
+    (candidate) => candidate.id === sessionId && candidate.tokenHash === tokenHash,
+  );
+  if (!session) return null;
+  if (new Date(session.expiresAt).getTime() <= Date.now()) {
+    await upsertRecord("users", {
+      ...user,
+      sessions: (user.sessions || []).filter((candidate) => candidate.id !== sessionId),
+      updatedAt: nowIso(),
+    });
+    return null;
+  }
+  const updatedSessions = (user.sessions || []).map((candidate) =>
+    candidate.id === sessionId ? { ...candidate, lastSeenAt: nowIso() } : candidate,
+  );
+  await upsertRecord("users", {
+    ...user,
+    sessions: updatedSessions,
+    updatedAt: nowIso(),
+  });
+  req.authSession = session;
+  req.authUser = sanitizeUser(user);
+  req.authUserRaw = user;
+  return req.authUser;
+}
+
+async function requireAuth(req, res, next) {
+  try {
+    const user = await resolveAuthUser(req);
+    if (!user) {
+      return res.status(401).json({ message: "Avval tizimga kiring." });
+    }
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
+function requireRole(role) {
+  return async (req, res, next) => {
+    try {
+      const user = req.authUser || (await resolveAuthUser(req));
+      if (!user) {
+        return res.status(401).json({ message: "Avval tizimga kiring." });
+      }
+      if (user.role !== role) {
+        return res.status(403).json({ message: "Bu bo'limga ruxsat yo'q." });
+      }
+      return next();
+    } catch (error) {
+      return next(error);
+    }
   };
 }
 
@@ -941,7 +1280,7 @@ async function getAdminBootstrap(vendorId, month = DEFAULT_MONTH, serviceId = ""
   const activeService = activeServiceId ? await getServiceDetail(activeServiceId, month) : null;
 
   return {
-    vendor,
+    vendor: sanitizeUser(vendor),
     summary,
     services,
     bookings,
@@ -1048,18 +1387,126 @@ app.get("/api/health", (req, res) => {
     databaseMode,
     cloudinaryEnabled: CLOUDINARY_ENABLED,
     today: TODAY,
+    timezone: APP_TIMEZONE,
   });
 });
 
-app.get("/api/config", async (req, res) => {
-  res.json({
-    databaseMode,
-    cloudinaryEnabled: CLOUDINARY_ENABLED,
-    demoCustomerId: "usr-demo-customer",
-    demoVendorId: "usr-vendor-silk",
-    today: TODAY,
-    defaultMonth: DEFAULT_MONTH,
-  });
+app.get("/api/config", async (req, res, next) => {
+  try {
+    const currentUser = await resolveAuthUser(req);
+    res.json({
+      databaseMode,
+      cloudinaryEnabled: CLOUDINARY_ENABLED,
+      today: TODAY,
+      defaultMonth: DEFAULT_MONTH,
+      authUser: currentUser ? await getUserWithFavorites(currentUser._id) : null,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/auth/me", async (req, res, next) => {
+  try {
+    const user = await resolveAuthUser(req);
+    if (!user) {
+      return res.status(401).json({ message: "Faol sessiya topilmadi." });
+    }
+    return res.json({ user: await getUserWithFavorites(user._id) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/auth/register", async (req, res, next) => {
+  try {
+    const role = req.body.role === "vendor" ? "vendor" : "customer";
+    const email = normaliseEmail(req.body.email);
+    const phone = normalisePhone(req.body.phone);
+    const password = String(req.body.password || "");
+    const missing = validateRequired({
+      fullName: req.body.fullName,
+      email,
+      phone,
+      password,
+      city: req.body.city,
+      ...(role === "vendor" ? { venueName: req.body.venueName } : {}),
+    });
+
+    if (missing.length) {
+      return res.status(400).json({ message: `Majburiy maydonlar: ${missing.join(", ")}` });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ message: "Parol kamida 8 belgidan iborat bo'lsin." });
+    }
+
+    const [existingEmail, existingPhone] = await Promise.all([
+      findOne("users", (user) => normaliseEmail(user.email) === email, { emailNormalized: email }),
+      findOne("users", (user) => normalisePhone(user.phone) === phone, { phoneNormalized: phone }),
+    ]);
+    if (existingEmail) {
+      return res.status(409).json({ message: "Bu email bilan akkaunt mavjud." });
+    }
+    if (existingPhone) {
+      return res.status(409).json({ message: "Bu telefon bilan akkaunt mavjud." });
+    }
+
+    const passwordInfo = await createPasswordHash(password);
+    const user = {
+      _id: buildId("usr"),
+      role,
+      fullName: req.body.fullName,
+      phone,
+      phoneNormalized: phone,
+      email,
+      emailNormalized: email,
+      city: req.body.city,
+      venueName: role === "vendor" ? req.body.venueName : "",
+      weddingDate: "",
+      budget: 0,
+      guestCount: 180,
+      style: "zamonaviy",
+      favoriteServiceIds: [],
+      passwordHash: passwordInfo.hash,
+      passwordSalt: passwordInfo.salt,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    };
+
+    await upsertRecord("users", user);
+    await createSessionForUser(user, res);
+    return res.status(201).json({ user: await getUserWithFavorites(user._id) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/auth/login", async (req, res, next) => {
+  try {
+    const identifier = String(req.body.identifier || "");
+    const password = String(req.body.password || "");
+    const user = await findUserByIdentifier(identifier);
+    if (!user || !user.passwordHash || !user.passwordSalt) {
+      return res.status(401).json({ message: "Login yoki parol noto'g'ri." });
+    }
+    const valid = await verifyPassword(password, user.passwordSalt, user.passwordHash);
+    if (!valid) {
+      return res.status(401).json({ message: "Login yoki parol noto'g'ri." });
+    }
+    await createSessionForUser(user, res);
+    return res.json({ user: await getUserWithFavorites(user._id) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/auth/logout", requireAuth, async (req, res, next) => {
+  try {
+    await destroySession(req, res);
+    res.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get("/api/home", async (req, res, next) => {
@@ -1095,18 +1542,19 @@ app.get("/api/services/:id", async (req, res, next) => {
   }
 });
 
-app.post("/api/services", async (req, res, next) => {
+app.post("/api/services", requireAuth, requireRole("vendor"), async (req, res, next) => {
   try {
-    const vendorId = req.body.vendorId || "usr-vendor-silk";
-    const name = req.body.name || "Yangi xizmat";
+    const name = String(req.body.name || "Yangi xizmat").trim() || "Yangi xizmat";
+    const category = String(req.body.category || "To'yxona").trim() || "To'yxona";
+    const type = String(req.body.type || "venue").trim() || "venue";
     const service = {
       _id: buildId("svc"),
-      vendorId,
-      type: req.body.type || "venue",
-      category: req.body.category || "To'yxona",
+      vendorId: req.authUser._id,
+      type,
+      category,
       slug: toSlug(name),
       name,
-      city: req.body.city || "Toshkent",
+      city: req.body.city || req.authUser.city || "Toshkent",
       district: req.body.district || "",
       address: req.body.address || "",
       badge: req.body.badge || "Draft",
@@ -1121,8 +1569,8 @@ app.post("/api/services", async (req, res, next) => {
       description: req.body.description || "",
       heroImage: req.body.heroImage || "",
       gallery: [],
-      amenities: [],
-      styles: [],
+      amenities: Array.isArray(req.body.amenities) ? req.body.amenities : [],
+      styles: Array.isArray(req.body.styles) ? req.body.styles : [],
       maxDailyBookings: 3,
       createdAt: nowIso(),
       updatedAt: nowIso(),
@@ -1134,11 +1582,14 @@ app.post("/api/services", async (req, res, next) => {
   }
 });
 
-app.put("/api/services/:id", async (req, res, next) => {
+app.put("/api/services/:id", requireAuth, requireRole("vendor"), async (req, res, next) => {
   try {
     const existing = await findById("services", req.params.id);
     if (!existing) {
       return res.status(404).json({ message: "Xizmat topilmadi." });
+    }
+    if (existing.vendorId !== req.authUser._id) {
+      return res.status(403).json({ message: "Bu xizmatni tahrirlashga ruxsat yo'q." });
     }
 
     const gallery = Array.isArray(req.body.gallery)
@@ -1147,12 +1598,16 @@ app.put("/api/services/:id", async (req, res, next) => {
         ? existing.gallery
         : [];
 
+    const nextName = String(req.body.name ?? existing.name).trim() || existing.name;
+    const nextCategory = String(req.body.category ?? existing.category).trim() || existing.category;
+    const nextType = String(req.body.type ?? existing.type).trim() || existing.type;
+
     const updated = {
       ...existing,
-      name: req.body.name ?? existing.name,
-      slug: toSlug(req.body.name ?? existing.name),
-      category: req.body.category ?? existing.category,
-      type: req.body.type ?? existing.type,
+      name: nextName,
+      slug: toSlug(nextName),
+      category: nextCategory,
+      type: nextType,
       city: req.body.city ?? existing.city,
       district: req.body.district ?? existing.district,
       address: req.body.address ?? existing.address,
@@ -1179,105 +1634,74 @@ app.put("/api/services/:id", async (req, res, next) => {
   }
 });
 
-app.post("/api/services/:id/images", upload.single("image"), async (req, res, next) => {
-  try {
-    const service = await findById("services", req.params.id);
-    if (!service) {
-      return res.status(404).json({ message: "Xizmat topilmadi." });
-    }
-
-    let imageUrl = String(req.body.imageUrl || "").trim();
-    let publicId = "";
-
-    if (!imageUrl && req.file) {
-      if (!CLOUDINARY_ENABLED) {
-        return res.status(400).json({
-          message:
-            "Cloudinary sozlanmagan. Fayl upload uchun CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY va CLOUDINARY_API_SECRET kerak.",
-        });
+app.post(
+  "/api/services/:id/images",
+  requireAuth,
+  requireRole("vendor"),
+  upload.single("image"),
+  async (req, res, next) => {
+    try {
+      const service = await findById("services", req.params.id);
+      if (!service) {
+        return res.status(404).json({ message: "Xizmat topilmadi." });
+      }
+      if (service.vendorId !== req.authUser._id) {
+        return res.status(403).json({ message: "Bu galereyaga ruxsat yo'q." });
       }
 
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "toyimbor/services",
-            resource_type: "image",
-            transformation: [{ width: 1600, crop: "limit" }],
-          },
-          (error, uploadResult) => {
-            if (error) return reject(error);
-            return resolve(uploadResult);
-          },
-        );
-        stream.end(req.file.buffer);
-      });
+      let imageUrl = String(req.body.imageUrl || "").trim();
+      let publicId = "";
 
-      imageUrl = result.secure_url;
-      publicId = result.public_id;
+      if (!imageUrl && req.file) {
+        if (!CLOUDINARY_ENABLED) {
+          return res.status(400).json({
+            message:
+              "Cloudinary sozlanmagan. Fayl upload uchun CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY va CLOUDINARY_API_SECRET kerak.",
+          });
+        }
+
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "toyimbor/services",
+              resource_type: "image",
+              transformation: [{ width: 1600, crop: "limit" }],
+            },
+            (error, uploadResult) => {
+              if (error) return reject(error);
+              return resolve(uploadResult);
+            },
+          );
+          stream.end(req.file.buffer);
+        });
+
+        imageUrl = result.secure_url;
+        publicId = result.public_id;
+      }
+
+      if (!imageUrl) {
+        return res.status(400).json({ message: "Rasm URL yoki fayl yuboring." });
+      }
+
+      const updated = {
+        ...service,
+        heroImage: service.heroImage || imageUrl,
+        gallery: [...(service.gallery || []), { url: imageUrl, publicId }],
+        updatedAt: nowIso(),
+      };
+      await upsertRecord("services", updated);
+      return res.json(updated);
+    } catch (error) {
+      return next(error);
     }
+  },
+);
 
-    if (!imageUrl) {
-      return res.status(400).json({ message: "Rasm URL yoki fayl yuboring." });
-    }
-
-    const updated = {
-      ...service,
-      heroImage: service.heroImage || imageUrl,
-      gallery: [...(service.gallery || []), { url: imageUrl, publicId }],
-      updatedAt: nowIso(),
-    };
-    await upsertRecord("services", updated);
-    return res.json(updated);
-  } catch (error) {
-    return next(error);
-  }
-});
-
-app.post("/api/auth/request-code", async (req, res, next) => {
+app.get("/api/users/:id", requireAuth, async (req, res, next) => {
   try {
-    const phone = normalisePhone(req.body.phone);
-    if (!phone) {
-      return res.status(400).json({ message: "Telefon raqami kiriting." });
+    if (req.authUser._id !== req.params.id) {
+      return res.status(403).json({ message: "Faqat o'z profilingizni ko'ra olasiz." });
     }
-    const user = await createOrGetUserByPhone(phone);
-    const code = createOtpCode();
-    otpStore.set(phone, {
-      code,
-      userId: user._id,
-      expiresAt: Date.now() + 5 * 60 * 1000,
-    });
-
-    return res.json({
-      ok: true,
-      phone,
-      message: "SMS kod yuborildi.",
-      demoCode: process.env.NODE_ENV === "production" ? undefined : code,
-    });
-  } catch (error) {
-    return next(error);
-  }
-});
-
-app.post("/api/auth/verify-code", async (req, res, next) => {
-  try {
-    const phone = normalisePhone(req.body.phone);
-    const code = String(req.body.code || "").trim();
-    const session = otpStore.get(phone);
-
-    if (!session || session.expiresAt < Date.now() || session.code !== code) {
-      return res.status(400).json({ message: "Kod noto'g'ri yoki muddati o'tgan." });
-    }
-
-    const user = await getUserWithFavorites(session.userId);
-    otpStore.delete(phone);
-    return res.json({ ok: true, user });
-  } catch (error) {
-    return next(error);
-  }
-});
-
-app.get("/api/users/:id", async (req, res, next) => {
-  try {
     const user = await getUserWithFavorites(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "Foydalanuvchi topilmadi." });
@@ -1288,22 +1712,62 @@ app.get("/api/users/:id", async (req, res, next) => {
   }
 });
 
-app.patch("/api/users/:id", async (req, res, next) => {
+app.patch("/api/users/:id", requireAuth, async (req, res, next) => {
   try {
+    if (req.authUser._id !== req.params.id) {
+      return res.status(403).json({ message: "Faqat o'z profilingizni tahrirlashingiz mumkin." });
+    }
     const user = await findById("users", req.params.id);
     if (!user) {
       return res.status(404).json({ message: "Foydalanuvchi topilmadi." });
     }
+
+    const nextFullName = String(req.body.fullName ?? user.fullName).trim();
+    const nextCity = String(req.body.city ?? user.city).trim();
+    const nextEmail = normaliseEmail(req.body.email ?? user.email);
+    const nextPhone = normalisePhone(req.body.phone ?? user.phone);
+    const missing = validateRequired({
+      fullName: nextFullName,
+      email: nextEmail,
+      phone: nextPhone,
+      city: nextCity,
+    });
+    if (missing.length) {
+      return res.status(400).json({ message: `Majburiy maydonlar: ${missing.join(", ")}` });
+    }
+
+    const [emailConflict, phoneConflict] = await Promise.all([
+      findOne(
+        "users",
+        (item) => item._id !== user._id && normaliseEmail(item.email) === nextEmail,
+        { emailNormalized: nextEmail, _id: { $ne: user._id } },
+      ),
+      findOne(
+        "users",
+        (item) => item._id !== user._id && normalisePhone(item.phone) === nextPhone,
+        { phoneNormalized: nextPhone, _id: { $ne: user._id } },
+      ),
+    ]);
+    if (emailConflict) {
+      return res.status(409).json({ message: "Bu email boshqa akkauntga biriktirilgan." });
+    }
+    if (phoneConflict) {
+      return res.status(409).json({ message: "Bu telefon boshqa akkauntga biriktirilgan." });
+    }
+
     const updated = {
       ...user,
-      fullName: req.body.fullName ?? user.fullName,
-      email: req.body.email ?? user.email,
-      city: req.body.city ?? user.city,
-      phone: req.body.phone ? normalisePhone(req.body.phone) : user.phone,
+      fullName: nextFullName,
+      email: nextEmail,
+      emailNormalized: nextEmail,
+      city: nextCity,
+      phone: nextPhone,
+      phoneNormalized: nextPhone,
       weddingDate: req.body.weddingDate ?? user.weddingDate,
       budget: toNumber(req.body.budget, user.budget),
       guestCount: toNumber(req.body.guestCount, user.guestCount),
       style: req.body.style ?? user.style,
+      venueName: req.body.venueName ?? user.venueName,
       updatedAt: nowIso(),
     };
     await upsertRecord("users", updated);
@@ -1313,8 +1777,11 @@ app.patch("/api/users/:id", async (req, res, next) => {
   }
 });
 
-app.post("/api/users/:id/favorites", async (req, res, next) => {
+app.post("/api/users/:id/favorites", requireAuth, async (req, res, next) => {
   try {
+    if (req.authUser._id !== req.params.id) {
+      return res.status(403).json({ message: "Faqat o'z saralanganlaringizni boshqara olasiz." });
+    }
     const user = await findById("users", req.params.id);
     if (!user) {
       return res.status(404).json({ message: "Foydalanuvchi topilmadi." });
@@ -1322,6 +1789,10 @@ app.post("/api/users/:id/favorites", async (req, res, next) => {
     const serviceId = req.body.serviceId;
     if (!serviceId) {
       return res.status(400).json({ message: "Xizmat ID kerak." });
+    }
+    const service = await findById("services", serviceId);
+    if (!service) {
+      return res.status(404).json({ message: "Xizmat topilmadi." });
     }
 
     const current = new Set(user.favoriteServiceIds || []);
@@ -1340,19 +1811,27 @@ app.post("/api/users/:id/favorites", async (req, res, next) => {
   }
 });
 
-app.get("/api/bookings", async (req, res, next) => {
+app.get("/api/bookings", requireAuth, async (req, res, next) => {
   try {
-    const items = await getBookings(req.query);
+    const filters = {
+      status: req.query.status,
+      month: req.query.month,
+    };
+    if (req.authUser.role === "vendor") {
+      filters.vendorId = req.authUser._id;
+    } else {
+      filters.userId = req.authUser._id;
+    }
+    const items = await getBookings(filters);
     res.json({ items });
   } catch (error) {
     next(error);
   }
 });
 
-app.post("/api/bookings", async (req, res, next) => {
+app.post("/api/bookings", requireAuth, requireRole("customer"), async (req, res, next) => {
   try {
     const missing = validateRequired({
-      userId: req.body.userId,
       serviceId: req.body.serviceId,
       eventDate: req.body.eventDate,
       guestCount: req.body.guestCount,
@@ -1364,15 +1843,45 @@ app.post("/api/bookings", async (req, res, next) => {
       });
     }
 
-    const [user, service] = await Promise.all([
-      findById("users", req.body.userId),
+    if (req.body.eventDate < TODAY) {
+      return res.status(400).json({ message: "O'tgan sana uchun bron qilib bo'lmaydi." });
+    }
+
+    const guestCount = toNumber(req.body.guestCount);
+    if (guestCount < 1) {
+      return res.status(400).json({ message: "Mehmonlar soni 1 tadan kam bo'lmasin." });
+    }
+
+    const allowedSlots = new Set(["nahor", "kechki", "kun-bo'yi"]);
+    if (!allowedSlots.has(String(req.body.slot))) {
+      return res.status(400).json({ message: "Bron sloti noto'g'ri tanlangan." });
+    }
+
+    const [user, service, existingBookings] = await Promise.all([
+      findById("users", req.authUser._id),
       findById("services", req.body.serviceId),
+      getBookings({}),
     ]);
     if (!user || !service) {
       return res.status(404).json({ message: "Foydalanuvchi yoki xizmat topilmadi." });
     }
 
-    const guestCount = toNumber(req.body.guestCount);
+    if (service.capacity && guestCount > service.capacity) {
+      return res.status(400).json({
+        message: `Bu xizmat sig'imi ${service.capacity} mehmondan oshmaydi.`,
+      });
+    }
+
+    const bookingCountForDate = existingBookings.filter(
+      (booking) =>
+        booking.serviceId === service._id &&
+        booking.eventDate === req.body.eventDate &&
+        booking.status !== "cancelled",
+    ).length;
+    if (bookingCountForDate >= (service.maxDailyBookings || 3)) {
+      return res.status(409).json({ message: "Bu sana to'liq band bo'lib qolgan." });
+    }
+
     const total =
       service.type === "venue" || service.type === "catering"
         ? toNumber(service.pricePerGuest) * guestCount
@@ -1407,20 +1916,32 @@ app.post("/api/bookings", async (req, res, next) => {
   }
 });
 
-app.patch("/api/bookings/:id", async (req, res, next) => {
+app.patch("/api/bookings/:id", requireAuth, async (req, res, next) => {
   try {
     const booking = await findById("bookings", req.params.id);
     if (!booking) {
       return res.status(404).json({ message: "Bron topilmadi." });
     }
 
+    const isVendorOwner = req.authUser.role === "vendor" && booking.vendorId === req.authUser._id;
+    const isCustomerOwner = req.authUser.role === "customer" && booking.userId === req.authUser._id;
+    if (!isVendorOwner && !isCustomerOwner) {
+      return res.status(403).json({ message: "Bu bronni boshqarishga ruxsat yo'q." });
+    }
+
     const updated = {
       ...booking,
-      status: req.body.status ?? booking.status,
-      paymentStatus: req.body.paymentStatus ?? booking.paymentStatus,
       note: req.body.note ?? booking.note,
       updatedAt: nowIso(),
     };
+
+    if (isVendorOwner) {
+      updated.status = req.body.status ?? booking.status;
+      updated.paymentStatus = req.body.paymentStatus ?? booking.paymentStatus;
+    } else if (isCustomerOwner && req.body.status === "cancelled") {
+      updated.status = "cancelled";
+    }
+
     await upsertRecord("bookings", updated);
     res.json(updated);
   } catch (error) {
@@ -1444,22 +1965,20 @@ app.post("/api/recommendations", async (req, res, next) => {
   }
 });
 
-app.get("/api/dashboard/bootstrap", async (req, res, next) => {
+app.get("/api/dashboard/bootstrap", requireAuth, requireRole("customer"), async (req, res, next) => {
   try {
-    const userId = req.query.userId || "usr-demo-customer";
-    const data = await getDashboardBootstrap(userId);
+    const data = await getDashboardBootstrap(req.authUser._id);
     res.json(data);
   } catch (error) {
     next(error);
   }
 });
 
-app.get("/api/admin/bootstrap", async (req, res, next) => {
+app.get("/api/admin/bootstrap", requireAuth, requireRole("vendor"), async (req, res, next) => {
   try {
-    const vendorId = req.query.vendorId || "usr-vendor-silk";
     const month = req.query.month || DEFAULT_MONTH;
     const serviceId = req.query.serviceId || "";
-    const data = await getAdminBootstrap(vendorId, month, serviceId);
+    const data = await getAdminBootstrap(req.authUser._id, month, serviceId);
     res.json(data);
   } catch (error) {
     next(error);
@@ -1468,6 +1987,7 @@ app.get("/api/admin/bootstrap", async (req, res, next) => {
 
 const pageRoutes = {
   "/": "index.html",
+  "/auth": "auth.html",
   "/catalog": "catalog.html",
   "/booking": "booking.html",
   "/dashboard": "dashboard.html",

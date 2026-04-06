@@ -26,9 +26,7 @@
           <a class="site-nav__link" href="/dashboard">Bronlarim</a>
           <a class="site-nav__link" href="/profile">Profil</a>
         </nav>
-        <div class="site-header__actions">
-          <a class="button button--ghost button--small" href="/admin">Vendor panel</a>
-        </div>
+        <div class="site-header__actions"></div>
       </div>
     </header>
 
@@ -42,34 +40,11 @@
         </div>
 
         <section id="booking-step-1" class="flow-step is-active">
-          <p class="eyebrow">Qadam 1 / 3</p>
-          <h1>Telefon raqamingizni kiriting</h1>
-          <p class="muted-text">SMS orqali tasdiqlash uchun amaldagi raqamingizni yuboring.</p>
-          <form id="request-code-form" class="stack-form">
-            <label class="field">
-              <span>Telefon</span>
-              <input id="booking-phone" type="tel" placeholder="+998 90 123 45 67" required />
-            </label>
-            <button class="button button--primary button--wide" type="submit">SMS kodni yuborish</button>
-            <div id="booking-code-hint" class="notice hidden"></div>
-          </form>
+          <div id="booking-step-1-content"></div>
         </section>
 
         <section id="booking-step-2" class="flow-step">
           <p class="eyebrow">Qadam 2 / 3</p>
-          <h2>SMS kodni tasdiqlang</h2>
-          <p class="muted-text">Demo rejimida kod sahifada ko'rsatiladi.</p>
-          <form id="verify-code-form" class="stack-form">
-            <label class="field">
-              <span>4 xonali kod</span>
-              <input id="booking-code" type="text" maxlength="4" inputmode="numeric" required />
-            </label>
-            <button class="button button--primary button--wide" type="submit">Tasdiqlash</button>
-          </form>
-        </section>
-
-        <section id="booking-step-3" class="flow-step">
-          <p class="eyebrow">Qadam 3 / 3</p>
           <h2>Bron ma'lumotlarini kiriting</h2>
           <form id="booking-form" class="stack-form">
             <div class="form-grid">
@@ -99,7 +74,7 @@
         </section>
 
         <section id="booking-success" class="flow-step flow-step--success">
-          <div class="success-badge">✓</div>
+          <div class="success-badge">OK</div>
           <h2>So'rov yuborildi</h2>
           <p id="booking-success-text" class="muted-text"></p>
           <div class="cluster">
