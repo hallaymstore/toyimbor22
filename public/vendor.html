@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>To'yimBor | Vendor workspace</title>
+    <title>To'yimBor | Hamkorlar kabineti</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,8 +19,8 @@
   <body class="admin-body admin-body--vendor" data-page="vendor">
     <aside class="admin-sidebar">
       <div>
-        <a class="brand brand--sidebar" href="/">To'yimBor Vendor</a>
-        <p class="admin-sidebar__text">Real bronlar, kalendar va xizmatlaringizni bir joydan boshqaring.</p>
+        <a class="brand brand--sidebar" href="/">To'yimBor Hamkor</a>
+        <p class="admin-sidebar__text">Marosim so'rovlari, sanalar va xizmatlaringizni bir joyda kuzating.</p>
       </div>
       <nav class="admin-sidebar__nav">
         <a href="#admin-overview">Asosiy panel</a>
@@ -28,7 +28,7 @@
         <a href="#admin-calendar-section">Kalendar</a>
         <a href="#admin-services-section">Xizmatlar</a>
       </nav>
-      <a class="button button--primary button--wide" id="create-service-button" href="#">Yangi xizmat</a>
+      <a class="button button--primary button--wide" id="create-service-button" href="#">Yangi marosim xizmati</a>
       <div id="admin-session-actions" class="stack-form"></div>
     </aside>
 
@@ -36,8 +36,8 @@
       <section id="admin-overview" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Vendor workspace</p>
-            <h1 id="admin-vendor-name">Vendor admin</h1>
+            <p class="eyebrow">Hamkorlar kabineti</p>
+            <h1 id="admin-vendor-name">Marosimlar markazi</h1>
           </div>
           <div id="cloudinary-state" class="notice notice--soft"></div>
         </div>
@@ -47,8 +47,8 @@
       <section id="admin-bookings-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Bronlar boshqaruvi</p>
-            <h2>So'nggi buyurtmalar</h2>
+            <p class="eyebrow">Marosim so'rovlari</p>
+            <h2>Yaqin marosimlar</h2>
           </div>
         </div>
         <div class="admin-table-wrap panel-scroll panel-scroll--table">
@@ -59,7 +59,7 @@
                 <th>Xizmat</th>
                 <th>Sana</th>
                 <th>Holat</th>
-                <th>To'lov</th>
+                <th>Kelishuv</th>
                 <th>Izoh</th>
                 <th>Amal</th>
               </tr>
@@ -87,8 +87,8 @@
       <section id="admin-services-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Xizmat tahriri</p>
-            <h2>Galereya, tavsif va narxlar</h2>
+            <p class="eyebrow">Marosim xizmati</p>
+            <h2>Suratlar, tavsif va qabul sig'imi</h2>
           </div>
         </div>
         <div class="admin-edit-layout">
@@ -130,15 +130,15 @@
                   <input name="capacity" type="number" />
                 </label>
                 <label class="field">
-                  <span>Narx / mehmon</span>
+                  <span>Bir mehmon uchun xizmat</span>
                   <input name="pricePerGuest" type="number" />
                 </label>
                 <label class="field">
-                  <span>Base price</span>
+                  <span>Xizmat boshlang'ich qiymati</span>
                   <input name="basePrice" type="number" />
                 </label>
                 <label class="field">
-                  <span>Hero image URL</span>
+                  <span>Asosiy surat havolasi</span>
                   <input name="heroImage" type="url" placeholder="https://..." />
                 </label>
                 <label class="field">
@@ -164,11 +164,11 @@
                 <div class="field field--full checkbox-row">
                   <label class="checkbox-item">
                     <input name="featured" type="checkbox" />
-                    <span>Featured</span>
+                    <span>Bosh sahifaga tavsiya etilsin</span>
                   </label>
                   <label class="checkbox-item">
                     <input name="verified" type="checkbox" />
-                    <span>Verified</span>
+                    <span>Ishonch belgisi berilsin</span>
                   </label>
                 </div>
               </div>
@@ -179,16 +179,16 @@
             </form>
 
             <form id="admin-image-upload-form" class="stack-form upload-form">
-              <h3>Galereya upload</h3>
+              <h3>Suratlar qo'shish</h3>
               <label class="field">
-                <span>Rasm URL</span>
+                <span>Surat havolasi</span>
                 <input name="imageUrl" type="url" placeholder="https://..." />
               </label>
               <label class="field">
-                <span>Yoki fayl tanlang</span>
+                <span>Yoki surat tanlang</span>
                 <input name="image" type="file" accept="image/*" />
               </label>
-              <button class="button button--ghost" type="submit">Galereyaga qo'shish</button>
+              <button class="button button--ghost" type="submit">Albomga qo'shish</button>
             </form>
 
             <div id="admin-gallery" class="gallery-grid panel-scroll panel-scroll--gallery"></div>

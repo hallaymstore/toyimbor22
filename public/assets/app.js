@@ -160,7 +160,7 @@ function renderSystemBanner() {
           .map(
             (warning) => `
               <div class="notice system-banner__item" data-level="${escapeHtml(warning.level || "info")}">
-                <strong>${escapeHtml(warning.code === "memory_mode" ? "Deploy ogohlantirishi" : "Integratsiya holati")}</strong>
+                <strong>${escapeHtml(warning.level === "warning" ? "Muhim eslatma" : "Marosim eslatmasi")}</strong>
                 <span>${escapeHtml(warning.message || "")}</span>
               </div>`,
           )
@@ -182,10 +182,6 @@ function renderSystemBanner() {
   }
 }
 
-function formatMoney(value) {
-  return `${new Intl.NumberFormat("uz-UZ").format(Number(value || 0))} so'm`;
-}
-
 function formatDate(value) {
   if (!value) return "Sana ko'rsatilmagan";
   return new Intl.DateTimeFormat("uz-UZ", {
@@ -193,6 +189,16 @@ function formatDate(value) {
     month: "long",
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
+}
+
+function formatStyleLabel(value) {
+  const labels = {
+    zamonaviy: "Zamonaviy",
+    luxe: "Hashamatli",
+    milliy: "Milliy",
+    minimal: "Soddadil",
+  };
+  return labels[value] || "Tanlanmagan";
 }
 
 function escapeHtml(value = "") {
@@ -209,15 +215,15 @@ function renderGlobalChrome() {
     if (!state.authUser) {
       container.innerHTML = `
         <a class="button button--ghost button--small" href="${buildAuthUrl("customer")}">Kirish</a>
-        <a class="button button--ghost button--small" href="${buildAuthUrl("vendor", "/vendor")}">Vendor</a>
-        <a class="button button--primary button--small" href="${buildAuthUrl("admin", "/admin")}">Admin</a>
+        <a class="button button--ghost button--small" href="${buildAuthUrl("vendor", "/vendor")}">Hamkor</a>
+        <a class="button button--primary button--small" href="${buildAuthUrl("admin", "/admin")}">Boshqaruv</a>
       `;
       return;
     }
 
     if (state.authUser.role === "admin") {
       container.innerHTML = `
-        <a class="button button--ghost button--small" href="/admin">System admin</a>
+        <a class="button button--ghost button--small" href="/admin">Boshqaruv markazi</a>
         <button class="button button--primary button--small logout-button" type="button">Chiqish</button>
       `;
       return;
@@ -225,7 +231,7 @@ function renderGlobalChrome() {
 
     if (state.authUser.role === "vendor") {
       container.innerHTML = `
-        <a class="button button--ghost button--small" href="/vendor">Vendor panel</a>
+        <a class="button button--ghost button--small" href="/vendor">Hamkorlar kabineti</a>
         <button class="button button--primary button--small logout-button" type="button">Chiqish</button>
       `;
       return;
@@ -253,8 +259,8 @@ function renderGlobalChrome() {
     } else {
       sidebarActions.innerHTML = `
         <div class="stack-form">
-          <a class="button button--ghost button--wide" href="${buildAuthUrl("vendor", "/vendor")}">Vendor login</a>
-          <a class="button button--primary button--wide" href="${buildAuthUrl("admin", "/admin")}">Admin login</a>
+          <a class="button button--ghost button--wide" href="${buildAuthUrl("vendor", "/vendor")}">Hamkorlar kirishi</a>
+          <a class="button button--primary button--wide" href="${buildAuthUrl("admin", "/admin")}">Boshqaruv markazi</a>
         </div>
       `;
     }
@@ -287,7 +293,7 @@ function serviceCardTemplate(service, options = {}) {
     <article class="service-card${compact}">
       <div class="service-card__media">
         <img src="${escapeHtml(service.image)}" alt="${escapeHtml(service.name)}" />
-        <span class="badge">${escapeHtml(service.badge || "Verified")}</span>
+        <span class="badge">${escapeHtml(service.badge || "Tavsiya")}</span>
       </div>
       <div class="service-card__body">
         <div class="service-card__title">
@@ -354,7 +360,7 @@ async function initHome(skipScroll = false) {
   document.getElementById("stat-services").textContent = data.stats.serviceCount;
   document.getElementById("stat-customers").textContent = data.stats.customerCount;
   document.getElementById("stat-bookings").textContent = data.stats.bookingCount;
-  document.getElementById("stat-revenue").textContent = formatMoney(data.stats.revenue);
+  document.getElementById("stat-featured").textContent = data.stats.featuredServiceCount || 0;
 
   document.getElementById("home-search-form").onsubmit = (event) => {
     event.preventDefault();
@@ -438,9 +444,9 @@ async function initAuth() {
     });
 
     if (accessMode === "admin") {
-      title.textContent = "Platform admin kirishi";
+      title.textContent = "Boshqaruv markaziga kirish";
       subtitle.textContent =
-        "Super-admin sifatida vendorlar, xizmatlar va bronlar ustidan markazlashgan nazoratni ishlating.";
+        "Tantanalar oqimi, hamkorlar va xizmatlarni bir joydan kuzatish uchun kirish qiling.";
       registerForm.classList.add("hidden");
       adminNote?.classList.remove("hidden");
       return;
@@ -448,11 +454,11 @@ async function initAuth() {
 
     registerForm.classList.remove("hidden");
     adminNote?.classList.add("hidden");
-    title.textContent = accessMode === "vendor" ? "Vendor kirish va boshqaruv" : "Hisobga kirish";
+    title.textContent = accessMode === "vendor" ? "Hamkorlar kirishi" : "Hisobga kirish";
     subtitle.textContent =
       accessMode === "vendor"
-        ? "Vendor sifatida kirib, xizmatlar, bronlar va galereyani real boshqaring."
-        : "Mijoz sifatida kirib, bronlar, profil va tavsiyalarni real ishlating.";
+        ? "Hamkor sifatida kirib, marosim so'rovlari, sanalar va suratlarni boshqaring."
+        : "Mijoz sifatida kirib, bronlar, profil va didingizga mos tavsiyalarni ko'ring.";
   }
 
   roleSelect.value = accessMode === "vendor" ? "vendor" : "customer";
@@ -669,7 +675,6 @@ function bookingCardTemplate(item) {
           <span class="chip">${escapeHtml(item.paymentStatusLabel || item.paymentStatus || "Kutilmoqda")}</span>
           <span class="chip">${escapeHtml(String(item.guestCount || 0))} mehmon</span>
         </div>
-        <p class="booking-list__text">Jami: ${escapeHtml(formatMoney(item.total))}</p>
         ${item.note ? `<p class="booking-list__note">${escapeHtml(item.note)}</p>` : ""}
         ${
           canCancel
@@ -690,10 +695,10 @@ function packageTemplate(pkg) {
     <article class="package-card">
       <div class="section__heading">
         <div>
-          <p class="eyebrow">${pkg.withinBudget ? "Byudjetga mos" : "Byudjetdan yuqori"}</p>
+          <p class="eyebrow">${pkg.withinBudget ? "Marosimga mos" : "Qo'shimcha kelishuv bilan mos"}</p>
           <h3>${escapeHtml(pkg.title)}</h3>
         </div>
-        <strong>${escapeHtml(formatMoney(pkg.total))}</strong>
+        <strong>${escapeHtml(String(pkg.services.length || 0))} xizmat</strong>
       </div>
       <p class="muted-text">${escapeHtml(pkg.mood)}</p>
       <div class="package-card__services">
@@ -701,8 +706,8 @@ function packageTemplate(pkg) {
           .map(
             (service) => `
               <div class="package-card__row">
-                <span>${escapeHtml(service.name)} - ${escapeHtml(service.category)}</span>
-                <strong>${escapeHtml(formatMoney(service.price))}</strong>
+                <span>${escapeHtml(service.name)}</span>
+                <strong>${escapeHtml(service.category)}</strong>
               </div>`,
           )
           .join("")}
@@ -722,17 +727,16 @@ async function initDashboard() {
   state.authUser = bootstrap.user;
   renderGlobalChrome();
   renderSystemBanner();
-  document.getElementById("dashboard-title").textContent = `${bootstrap.user.fullName} uchun boshqaruv paneli`;
+  document.getElementById("dashboard-title").textContent = `${bootstrap.user.fullName} uchun to'y kundaligi`;
   const dashboardSummary = document.getElementById("dashboard-summary");
   if (dashboardSummary) {
     const pendingCount = bootstrap.bookings.filter((item) => item.status === "pending").length;
     const confirmedCount = bootstrap.bookings.filter((item) => item.status === "confirmed").length;
-    const plannedSpend = bootstrap.bookings.reduce((sum, item) => sum + Number(item.total || 0), 0);
     dashboardSummary.innerHTML = [
       summaryCardTemplate("Faol bronlar", String(bootstrap.bookings.length), "Barcha bookinglar"),
       summaryCardTemplate("Kutayotganlar", String(pendingCount), "Tezkor javob kerak"),
       summaryCardTemplate("Tasdiqlangan", String(confirmedCount), "Vendor tasdig'i bilan"),
-      summaryCardTemplate("Reja byudjeti", formatMoney(plannedSpend), "Tanlangan xizmatlar bo'yicha"),
+      summaryCardTemplate("Tavsiya etilganlar", String(bootstrap.featuredServices.length || 0), "Ko'p tanlangan yo'nalishlar"),
     ].join("");
   }
   document.getElementById("dashboard-bookings").innerHTML =
@@ -797,8 +801,8 @@ async function initProfile(refreshOnly = false) {
   if (profileSummary) {
     profileSummary.innerHTML = [
       summaryCardTemplate("To'y sanasi", user.weddingDate ? formatDate(user.weddingDate) : "Belgilanmagan"),
-      summaryCardTemplate("Byudjet", formatMoney(user.budget || 0), "Profil rejasidagi limit"),
-      summaryCardTemplate("Mehmonlar", String(user.guestCount || 0), "Event hajmi"),
+      summaryCardTemplate("Mehmonlar", String(user.guestCount || 0), "Marosim hajmi"),
+      summaryCardTemplate("Uslub", formatStyleLabel(user.style), "Orzu qilingan kayfiyat"),
       summaryCardTemplate("Saralanganlar", String((user.favorites || []).length), "Yoqqan xizmatlar"),
     ].join("");
   }
@@ -851,11 +855,11 @@ function summaryCardTemplate(label, value, accent = "") {
 
 function paymentOptionsTemplate(selectedValue) {
   const options = [
-    { value: "awaiting", label: "Kutilmoqda" },
-    { value: "deposit-paid", label: "Depozit to'langan" },
-    { value: "partial", label: "Qisman to'langan" },
-    { value: "paid", label: "To'langan" },
-    { value: "refunded", label: "Qaytarilgan" },
+    { value: "awaiting", label: "Javob kutilmoqda" },
+    { value: "deposit-paid", label: "Aloqa mustahkamlandi" },
+    { value: "partial", label: "Kelishuv davomida" },
+    { value: "paid", label: "To'liq kelishilgan" },
+    { value: "refunded", label: "Qayta ko'rib chiqiladi" },
   ];
   return options
     .map(
@@ -880,7 +884,6 @@ function adminBookingRowTemplate(booking) {
         <div class="muted-text">${escapeHtml(booking.slot)} • ${escapeHtml(
           String(booking.guestCount || 0),
         )} mehmon</div>
-        <div class="muted-text">${escapeHtml(formatMoney(booking.total))}</div>
       </td>
       <td>
         <span class="status-pill status-pill--${escapeHtml(booking.status)}">${escapeHtml(
@@ -995,22 +998,24 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
   renderSystemBanner();
 
   document.getElementById("admin-vendor-name").textContent =
-    data.vendor?.venueName || data.vendor?.fullName || "Vendor admin";
+    data.vendor?.venueName || data.vendor?.fullName || "Hamkorlar markazi";
   document.getElementById("cloudinary-state").textContent = data.cloudinaryEnabled
-    ? "Cloudinary upload tayyor"
-    : "Cloudinary sozlanmagan. Fayl upload uchun .env ni to'ldiring.";
+    ? "Suratlar albomi tayyor"
+    : "Suratlar havola orqali qabul qilinadi.";
+
+  const confirmedCount = data.bookings.filter((booking) => booking.status === "confirmed").length;
 
   document.getElementById("admin-summary").innerHTML = [
-    summaryCardTemplate("Bronlar", String(data.summary.bookingCount), "Faol buyurtmalar soni"),
-    summaryCardTemplate("Kutayotganlar", String(data.summary.pendingCount), "Tezkor ko'rib chiqish"),
-    summaryCardTemplate("Tushum", formatMoney(data.summary.revenue), "Tasdiqlangan bronlar bo'yicha"),
-    summaryCardTemplate("Bandlik", `${data.summary.occupancyRate}%`, `${data.summary.serviceCount} ta xizmat`),
+    summaryCardTemplate("Marosimlar", String(data.summary.bookingCount), "Kelgan barcha so'rovlar"),
+    summaryCardTemplate("Kutayotganlar", String(data.summary.pendingCount), "Tezkor javob kerak"),
+    summaryCardTemplate("Tasdiqlanganlar", String(confirmedCount), "Kelishilgan sanalar"),
+    summaryCardTemplate("Xizmatlar", String(data.summary.serviceCount), `${data.summary.occupancyRate}% bandlik`),
   ].join("");
 
   document.getElementById("admin-bookings-body").innerHTML =
     data.bookings.length > 0
       ? data.bookings.map((booking) => adminBookingRowTemplate(booking)).join("")
-      : `<tr><td colspan="7" class="muted-text">Hozircha bronlar yo'q.</td></tr>`;
+      : `<tr><td colspan="7" class="muted-text">Hozircha marosim so'rovlari yo'q.</td></tr>`;
   document.getElementById("calendar-service").innerHTML = data.services
     .map(
       (service) =>
@@ -1023,7 +1028,7 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
     `<div class="notice">Kalendar uchun to'yxona xizmati topilmadi.</div>`;
   document.getElementById("admin-service-list").innerHTML = data.services
     .map((service) => adminServiceCardTemplate(service, state.admin.activeServiceId))
-    .join("") || `<div class="notice">Hali xizmatlar yo'q. Avval yangi xizmat yarating.</div>`;
+    .join("") || `<div class="notice">Hali marosim xizmatlari qo'shilmagan.</div>`;
 
   if (data.activeService) {
     fillServiceForm(data.activeService);
@@ -1136,7 +1141,7 @@ async function initVendor() {
       });
       state.admin.activeServiceId = created._id;
       await refreshAdmin(created._id, state.admin.month);
-      toast("Yangi xizmat yaratildi.");
+      toast("Yangi marosim xizmati qo'shildi.");
     } catch (error) {
       toast(error.message, "error");
     }
@@ -1177,7 +1182,7 @@ async function initVendor() {
         method: "PUT",
         body: JSON.stringify(payload),
       });
-      toast("Xizmat saqlandi.");
+      toast("Marosim xizmati saqlandi.");
       await refreshAdmin(get("_id").value, state.admin.month);
     } catch (error) {
       toast(error.message, "error");
@@ -1199,7 +1204,7 @@ async function initVendor() {
         .map((item) => galleryItemTemplate(item))
         .join("");
       event.currentTarget.reset();
-      toast("Galereya yangilandi.");
+      toast("Suratlar albomi yangilandi.");
     } catch (error) {
       toast(error.message, "error");
     }
@@ -1216,7 +1221,7 @@ async function initVendor() {
         body: JSON.stringify({}),
       });
       state.admin.activeServiceId = "";
-      toast("Xizmat o'chirildi.");
+      toast("Marosim xizmati o'chirildi.");
       await refreshAdmin("", state.admin.month);
     } catch (error) {
       toast(error.message, "error");
@@ -1242,7 +1247,6 @@ function platformBookingRowTemplate(booking) {
       <td>
         <strong>${escapeHtml(formatDate(booking.eventDate))}</strong>
         <div class="muted-text">${escapeHtml(booking.slot)} • ${escapeHtml(String(booking.guestCount || 0))} mehmon</div>
-        <div class="muted-text">${escapeHtml(formatMoney(booking.total))}</div>
       </td>
       <td>
         <span class="status-pill status-pill--${escapeHtml(booking.status)}">${escapeHtml(
@@ -1273,8 +1277,8 @@ function platformBookingRowTemplate(booking) {
 function platformVendorCardTemplate(vendor) {
   return `
     <article class="vendor-card">
-      <p class="eyebrow">Vendor partner</p>
-      <h3>${escapeHtml(vendor.venueName || vendor.fullName || "Vendor")}</h3>
+      <p class="eyebrow">Hamkor jamoa</p>
+      <h3>${escapeHtml(vendor.venueName || vendor.fullName || "Hamkor")}</h3>
       <p class="muted-text">${escapeHtml(vendor.fullName || "")} • ${escapeHtml(vendor.city || "")}</p>
       <div class="chip-row">
         <span class="chip">${escapeHtml(String(vendor.serviceCount || 0))} xizmat</span>
@@ -1283,15 +1287,15 @@ function platformVendorCardTemplate(vendor) {
       </div>
       <div class="vendor-card__stats">
         <div>
-          <span>Tushum</span>
-          <strong>${escapeHtml(formatMoney(vendor.revenue || 0))}</strong>
+          <span>Tasdiqlanganlar</span>
+          <strong>${escapeHtml(String(vendor.confirmedCount || 0))}</strong>
         </div>
         <div>
-          <span>Verified</span>
+          <span>Ishonch belgisi</span>
           <strong>${escapeHtml(String(vendor.verifiedServiceCount || 0))}</strong>
         </div>
         <div>
-          <span>Featured</span>
+          <span>Bosh sahifada</span>
           <strong>${escapeHtml(String(vendor.featuredServiceCount || 0))}</strong>
         </div>
       </div>
@@ -1308,18 +1312,18 @@ function platformServiceCardTemplate(service) {
       <div class="vendor-card__body">
         <p class="eyebrow">${escapeHtml(service.category || "Xizmat")}</p>
         <h3>${escapeHtml(service.name)}</h3>
-        <p class="muted-text">${escapeHtml(service.vendorName || "Vendor")} • ${escapeHtml(service.city || "")}</p>
+        <p class="muted-text">${escapeHtml(service.vendorName || "Hamkor")} • ${escapeHtml(service.city || "")}</p>
         <div class="chip-row">
           <span class="chip">${escapeHtml(String(service.bookingCount || 0))} bron</span>
           <span class="chip">${escapeHtml(String(service.pendingCount || 0))} kutmoqda</span>
-          <span class="chip">${escapeHtml(formatMoney(service.revenue || 0))}</span>
+          <span class="chip">${service.verified ? "Ishonch belgili" : "Ko'rib chiqiladi"}</span>
         </div>
         <div class="cluster vendor-card__actions">
           <button class="button ${service.verified ? "button--ghost" : "button--primary"} button--small platform-service-toggle" data-id="${escapeHtml(service._id)}" data-field="verified" data-value="${escapeHtml(String(!service.verified))}" type="button">
-            ${service.verified ? "Verified dan olish" : "Verified qilish"}
+            ${service.verified ? "Ishonch belgisini olish" : "Ishonch belgisini berish"}
           </button>
           <button class="button ${service.featured ? "button--ghost" : "button--primary"} button--small platform-service-toggle" data-id="${escapeHtml(service._id)}" data-field="featured" data-value="${escapeHtml(String(!service.featured))}" type="button">
-            ${service.featured ? "Featured dan olish" : "Featured qilish"}
+            ${service.featured ? "Bosh sahifadan olish" : "Bosh sahifaga chiqarish"}
           </button>
         </div>
       </div>
@@ -1341,24 +1345,24 @@ async function refreshPlatformAdmin(month = state.platform.month) {
   renderGlobalChrome();
   renderSystemBanner();
 
-  document.getElementById("platform-admin-name").textContent = data.admin?.fullName || "Platform admin";
+  document.getElementById("platform-admin-name").textContent = data.admin?.fullName || "Boshqaruv markazi";
   document.getElementById("platform-health").textContent = data.cloudinaryEnabled
-    ? "Media integratsiyasi va platform nazorati faol"
-    : "Cloudinary sozlanmagan, lekin platform nazorati ishlayapti.";
+    ? "Suratlar va marosim yozuvlari tayyor"
+    : "Suratlar havola orqali qabul qilinadi.";
   document.getElementById("platform-month").value = state.platform.month;
   document.getElementById("platform-summary").innerHTML = [
-    summaryCardTemplate("Vendorlar", String(data.summary.vendorCount || 0), "Aktiv partnerlar"),
-    summaryCardTemplate("Mijozlar", String(data.summary.customerCount || 0), "Ro'yxatdan o'tgan userlar"),
+    summaryCardTemplate("Hamkorlar", String(data.summary.vendorCount || 0), "Faol jamoalar"),
+    summaryCardTemplate("Juftliklar", String(data.summary.customerCount || 0), "Ro'yxatdan o'tgan oilalar"),
     summaryCardTemplate("Bronlar", String(data.summary.bookingCount || 0), `${state.platform.month} bo'yicha`),
-    summaryCardTemplate("Kutayotganlar", String(data.summary.pendingCount || 0), "Tezkor nazorat"),
-    summaryCardTemplate("Featured", String(data.summary.featuredServiceCount || 0), "Bosh sahifa ko'rinishi"),
-    summaryCardTemplate("Tushum", formatMoney(data.summary.revenue || 0), "Tasdiqlangan buyurtmalar"),
+    summaryCardTemplate("Kutayotganlar", String(data.summary.pendingCount || 0), "Tezkor javob kerak"),
+    summaryCardTemplate("Tavsiya etilganlar", String(data.summary.featuredServiceCount || 0), "Bosh sahifadagi yo'nalishlar"),
+    summaryCardTemplate("Ishonch belgili", String(data.summary.verifiedServiceCount || 0), "Saralangan xizmatlar"),
   ].join("");
 
   document.getElementById("platform-alerts").innerHTML = [
-    `<div class="notice"><strong>${escapeHtml(String(data.summary.pendingCount || 0))} ta kutayotgan bron</strong><div class="muted-text">Operativ tasdiq va to'lov nazorati shu bo'limda.</div></div>`,
-    `<div class="notice"><strong>${escapeHtml(String(data.summary.verifiedServiceCount || 0))}/${escapeHtml(String(data.summary.serviceCount || 0))} ta xizmat verified</strong><div class="muted-text">Moderatsiya orqali katalog sifatini boshqaring.</div></div>`,
-    `<div class="notice"><strong>${escapeHtml(String(data.vendors.length || 0))} ta vendor monitoringda</strong><div class="muted-text">Har bir partner bo'yicha booking va revenue ko'rinadi.</div></div>`,
+    `<div class="notice"><strong>${escapeHtml(String(data.summary.pendingCount || 0))} ta marosim javob kutmoqda</strong><div class="muted-text">Juftliklarga o'z vaqtida aloqaga chiqish tavsiya etiladi.</div></div>`,
+    `<div class="notice"><strong>${escapeHtml(String(data.summary.verifiedServiceCount || 0))}/${escapeHtml(String(data.summary.serviceCount || 0))} ta xizmat ishonch belgisi olgan</strong><div class="muted-text">Saralangan xizmatlar bosh sahifada yanada yorqin ko'rinadi.</div></div>`,
+    `<div class="notice"><strong>${escapeHtml(String(data.vendors.length || 0))} ta hamkor jamoa kuzatuvda</strong><div class="muted-text">Har bir jamoaning bron oqimi va band kunlari shu yerda jamlangan.</div></div>`,
   ].join("");
 
   document.getElementById("platform-bookings-body").innerHTML =
@@ -1372,7 +1376,7 @@ async function refreshPlatformAdmin(month = state.platform.month) {
   document.getElementById("platform-services").innerHTML =
     data.services.length > 0
       ? data.services.map((service) => platformServiceCardTemplate(service)).join("")
-      : `<div class="notice">Moderatsiya uchun xizmatlar topilmadi.</div>`;
+      : `<div class="notice">Saralab ko'rsatish uchun xizmatlar topilmadi.</div>`;
 
   bindPlatformAdminInteractions();
 }
@@ -1391,7 +1395,7 @@ function bindPlatformAdminInteractions() {
             note: noteField?.value || "",
           }),
         });
-        toast("Bron holati yangilandi.");
+        toast("Marosim holati yangilandi.");
         await refreshPlatformAdmin(state.platform.month);
       } catch (error) {
         toast(error.message, "error");
@@ -1411,7 +1415,7 @@ function bindPlatformAdminInteractions() {
             note: noteField?.value || "",
           }),
         });
-        toast("Booking tafsilotlari saqlandi.");
+        toast("Marosim eslatmasi saqlandi.");
         await refreshPlatformAdmin(state.platform.month);
       } catch (error) {
         toast(error.message, "error");
@@ -1428,7 +1432,7 @@ function bindPlatformAdminInteractions() {
             [button.dataset.field]: button.dataset.value === "true",
           }),
         });
-        toast("Xizmat moderatsiyasi yangilandi.");
+        toast("Xizmat belgisi yangilandi.");
         await refreshPlatformAdmin(state.platform.month);
       } catch (error) {
         toast(error.message, "error");

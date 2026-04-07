@@ -741,7 +741,7 @@ function buildSystemWarnings() {
       code: "memory_mode",
       level: "warning",
       message:
-        "Tizim vaqtinchalik xotira rejimida ishlayapti. Ma'lumotlar deploy yoki restartdan keyin saqlanmay qolishi mumkin.",
+        "Marosim yozuvlari hozircha vaqtincha sandiqda saqlanmoqda. Asosiy saqlash joyi ulanmaguncha ayrim ma'lumotlar qayta kiritilishi mumkin.",
     });
   }
   if (!CLOUDINARY_ENABLED) {
@@ -749,7 +749,7 @@ function buildSystemWarnings() {
       code: "cloudinary_disabled",
       level: "info",
       message:
-        "Cloudinary ulanishi sozlanmagan. Fayl upload o'rniga URL orqali rasm qo'shish ishlaydi.",
+        "Foto albom xizmati ulanmagan. Hozircha suratlarni havola orqali qo'shish mumkin.",
     });
   }
   if (SESSION_SECRET === "change-this-session-secret") {
@@ -757,7 +757,7 @@ function buildSystemWarnings() {
       code: "weak_session_secret",
       level: "warning",
       message:
-        "SESSION_SECRET default qiymatda turibdi. Productionga chiqarishdan oldin kuchli secret o'rnating.",
+        "Kabinet himoyasi kuchaytirilishi kerak. Maxsus maxfiy kalitni yangilang.",
     });
   }
   return warnings;
@@ -1336,11 +1336,11 @@ function statusLabel(status) {
 
 function paymentStatusLabel(status) {
   const labels = {
-    awaiting: "Kutilmoqda",
-    "deposit-paid": "Depozit to'langan",
-    partial: "Qisman to'langan",
-    paid: "To'langan",
-    refunded: "Qaytarilgan",
+    awaiting: "Javob kutilmoqda",
+    "deposit-paid": "Aloqa mustahkamlandi",
+    partial: "Kelishuv davomida",
+    paid: "To'liq kelishilgan",
+    refunded: "Qayta ko'rib chiqiladi",
   };
   return labels[status] || status;
 }
@@ -1360,17 +1360,12 @@ async function getPlatformSummary(month = "") {
     ? bookings.filter((booking) => booking.eventDate.startsWith(month))
     : bookings;
 
-  const confirmedRevenue = relevantBookings
-    .filter((booking) => booking.status === "confirmed")
-    .reduce((sum, booking) => sum + toNumber(booking.total), 0);
-
   return {
     serviceCount: services.length,
     vendorCount: users.filter((user) => user.role === "vendor").length,
     customerCount: users.filter((user) => user.role === "customer").length,
     bookingCount: relevantBookings.length,
     pendingCount: relevantBookings.filter((booking) => booking.status === "pending").length,
-    revenue: confirmedRevenue,
     featuredServiceCount: services.filter((service) => service.featured).length,
     verifiedServiceCount: services.filter((service) => service.verified).length,
   };
@@ -1396,23 +1391,19 @@ async function getVendorSummary(vendorId) {
     getBookings({ vendorId }),
     listServices({ vendorId }),
   ]);
-  const totalRevenue = vendorBookings
-    .filter((booking) => booking.status === "confirmed")
-    .reduce((sum, booking) => sum + toNumber(booking.total), 0);
   const pendingCount = vendorBookings.filter((booking) => booking.status === "pending").length;
+  const confirmedCount = vendorBookings.filter((booking) => booking.status === "confirmed").length;
 
   return {
     bookingCount: vendorBookings.length,
     pendingCount,
-    revenue: totalRevenue,
+    confirmedCount,
     serviceCount: vendorServices.length,
     occupancyRate:
       vendorBookings.length === 0
         ? 0
         : Math.round(
-            (vendorBookings.filter((booking) => booking.status === "confirmed").length /
-              vendorBookings.length) *
-              100,
+            (confirmedCount / vendorBookings.length) * 100,
           ),
   };
 }
@@ -1456,20 +1447,18 @@ async function getPlatformAdminBootstrap(adminId, month = DEFAULT_MONTH) {
     .map((vendor) => {
       const vendorServices = services.filter((service) => service.vendorId === vendor._id);
       const vendorBookings = bookings.filter((booking) => booking.vendorId === vendor._id);
-      const vendorRevenue = vendorBookings
-        .filter((booking) => booking.status === "confirmed")
-        .reduce((sum, booking) => sum + toNumber(booking.total), 0);
+      const confirmedCount = vendorBookings.filter((booking) => booking.status === "confirmed").length;
       return {
         ...sanitizeUser(vendor),
         serviceCount: vendorServices.length,
         bookingCount: vendorBookings.length,
         pendingCount: vendorBookings.filter((booking) => booking.status === "pending").length,
-        revenue: vendorRevenue,
+        confirmedCount,
         verifiedServiceCount: vendorServices.filter((service) => service.verified).length,
         featuredServiceCount: vendorServices.filter((service) => service.featured).length,
       };
     })
-    .sort((left, right) => right.revenue - left.revenue || right.bookingCount - left.bookingCount);
+    .sort((left, right) => right.confirmedCount - left.confirmedCount || right.bookingCount - left.bookingCount);
 
   const serviceCards = services
     .map((service) => {
@@ -1480,9 +1469,6 @@ async function getPlatformAdminBootstrap(adminId, month = DEFAULT_MONTH) {
         vendorName: vendor?.venueName || vendor?.fullName || "Vendor",
         bookingCount: serviceBookings.length,
         pendingCount: serviceBookings.filter((booking) => booking.status === "pending").length,
-        revenue: serviceBookings
-          .filter((booking) => booking.status === "confirmed")
-          .reduce((sum, booking) => sum + toNumber(booking.total), 0),
       };
     })
     .sort(
@@ -1882,7 +1868,7 @@ app.post(
         if (!CLOUDINARY_ENABLED) {
           return res.status(400).json({
             message:
-              "Cloudinary sozlanmagan. Fayl upload uchun CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY va CLOUDINARY_API_SECRET kerak.",
+              "Foto albom xizmati ulanmagan. Hozircha suratni havola orqali qo'shing.",
           });
         }
 

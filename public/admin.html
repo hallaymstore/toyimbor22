@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>To'yimBor | System admin panel</title>
+    <title>To'yimBor | Boshqaruv markazi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,21 +19,21 @@
   <body class="admin-body admin-body--platform" data-page="admin">
     <aside class="admin-sidebar">
       <div>
-        <a class="brand brand--sidebar" href="/">To'yimBor Control</a>
-        <p class="admin-sidebar__text">Vendorlar, bronlar va katalog sifatini yagona markazdan boshqaring.</p>
+        <a class="brand brand--sidebar" href="/">To'yimBor Markaz</a>
+        <p class="admin-sidebar__text">Hamkorlar, marosimlar va saralangan xizmatlarni yagona joyda kuzating.</p>
       </div>
       <nav class="admin-sidebar__nav">
-        <a href="#platform-overview">Asosiy nazorat</a>
+        <a href="#platform-overview">Asosiy manzara</a>
         <a href="#platform-bookings-section">Bronlar</a>
-        <a href="#platform-vendors-section">Vendorlar</a>
-        <a href="#platform-services-section">Moderatsiya</a>
+        <a href="#platform-vendors-section">Hamkorlar</a>
+        <a href="#platform-services-section">Saralangan xizmatlar</a>
       </nav>
       <div class="stack-form">
         <label class="field">
-          <span>Kuzatuv oyi</span>
+          <span>Tantana oyi</span>
           <input id="platform-month" class="compact-control" type="month" />
         </label>
-        <button class="button button--primary button--wide" id="platform-refresh" type="button">Ma'lumotni yangilash</button>
+        <button class="button button--primary button--wide" id="platform-refresh" type="button">Ro'yxatni yangilash</button>
       </div>
       <div id="admin-session-actions" class="stack-form"></div>
     </aside>
@@ -42,8 +42,8 @@
       <section id="platform-overview" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">System admin</p>
-            <h1 id="platform-admin-name">Platform control</h1>
+            <p class="eyebrow">Boshqaruv markazi</p>
+            <h1 id="platform-admin-name">To'y mavsumi nazorati</h1>
           </div>
           <div id="platform-health" class="notice notice--soft"></div>
         </div>
@@ -57,8 +57,8 @@
       <section id="platform-bookings-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Platform bookinglar</p>
-            <h2>Operatsion nazorat</h2>
+            <p class="eyebrow">Marosimlar oqimi</p>
+            <h2>Yaqin kunlar manzarasi</h2>
           </div>
         </div>
         <div class="admin-table-wrap panel-scroll panel-scroll--table">
@@ -70,7 +70,7 @@
                 <th>Xizmat</th>
                 <th>Sana</th>
                 <th>Holat</th>
-                <th>To'lov</th>
+                <th>Kelishuv</th>
                 <th>Izoh</th>
                 <th>Amal</th>
               </tr>
@@ -83,8 +83,8 @@
       <section id="platform-vendors-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Vendorlar</p>
-            <h2>Partnerlar holati</h2>
+            <p class="eyebrow">Hamkorlar</p>
+            <h2>Jamoalar holati</h2>
           </div>
         </div>
         <div id="platform-vendors" class="vendor-grid panel-scroll panel-scroll--grid"></div>
@@ -93,8 +93,8 @@
       <section id="platform-services-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Katalog moderatsiyasi</p>
-            <h2>Xizmatlarni tasdiqlash va ko'rsatish</h2>
+            <p class="eyebrow">Saralangan xizmatlar</p>
+            <h2>Tavsiya etiladigan marosim yo'nalishlari</h2>
           </div>
         </div>
         <div id="platform-services" class="vendor-grid vendor-grid--compact panel-scroll panel-scroll--grid"></div>
