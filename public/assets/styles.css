@@ -855,6 +855,16 @@ textarea {
   margin-top: 1rem;
 }
 
+.booking-list.panel-scroll,
+.package-grid.panel-scroll,
+.service-grid.panel-scroll,
+.admin-service-list.panel-scroll,
+.gallery-grid.panel-scroll,
+.vendor-grid.panel-scroll,
+.calendar-grid.panel-scroll {
+  padding-bottom: 0.2rem;
+}
+
 .package-card {
   display: grid;
   gap: 1rem;
@@ -938,6 +948,56 @@ textarea {
   gap: 1rem;
 }
 
+.panel-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(122, 97, 13, 0.5) rgba(122, 97, 13, 0.1);
+}
+
+.panel-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.panel-scroll::-webkit-scrollbar-track {
+  background: rgba(122, 97, 13, 0.08);
+  border-radius: 999px;
+}
+
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(122, 97, 13, 0.46);
+  border-radius: 999px;
+}
+
+.panel-scroll--table {
+  max-height: min(58vh, 760px);
+}
+
+.panel-scroll--list {
+  max-height: min(54vh, 660px);
+  padding-right: 0.3rem;
+}
+
+.panel-scroll--grid {
+  max-height: min(56vh, 680px);
+  align-content: start;
+  padding-right: 0.3rem;
+}
+
+.panel-scroll--calendar {
+  max-height: min(46vh, 540px);
+  align-content: start;
+  padding-right: 0.3rem;
+}
+
+.panel-scroll--gallery {
+  max-height: min(38vh, 420px);
+  align-content: start;
+  padding-right: 0.3rem;
+}
+
 .admin-table-wrap {
   overflow: auto;
   padding: 0.4rem;
@@ -946,6 +1006,10 @@ textarea {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.admin-table-wrap.panel-scroll .admin-table {
+  min-width: 1080px;
 }
 
 .admin-table th,
@@ -961,6 +1025,11 @@ textarea {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(248, 245, 239, 0.98);
+  backdrop-filter: blur(10px);
 }
 
 .compact-control {
@@ -1334,5 +1403,16 @@ textarea {
 
   .admin-sidebar {
     padding: 1.2rem;
+  }
+
+  .panel-scroll--table {
+    max-height: min(48vh, 520px);
+  }
+
+  .panel-scroll--list,
+  .panel-scroll--grid,
+  .panel-scroll--calendar,
+  .panel-scroll--gallery {
+    max-height: min(42vh, 420px);
   }
 }
