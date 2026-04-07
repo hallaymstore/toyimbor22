@@ -35,9 +35,13 @@ const SESSION_TTL_DAYS = Number(process.env.SESSION_TTL_DAYS || 30);
 const SESSION_SECRET = process.env.SESSION_SECRET || "change-this-session-secret";
 const SESSION_SECURE = String(process.env.SESSION_SECURE || "false") === "true";
 const ALLOW_MEMORY_FALLBACK = String(process.env.ALLOW_MEMORY_FALLBACK || "false") === "true";
+const SHOULD_ALLOW_MEMORY_FALLBACK = ALLOW_MEMORY_FALLBACK || process.env.NODE_ENV !== "production";
 const SEED_SAMPLE_DATA = String(process.env.SEED_SAMPLE_DATA || "true") === "true";
+const SEED_ADMIN_ID = "usr-admin-platform";
 const SEED_CUSTOMER_ID = "usr-customer-aziza";
 const SEED_VENDOR_ID = "usr-vendor-silk";
+const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || "admin@toyimbor.uz";
+const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "Admin123!";
 const SEED_CUSTOMER_EMAIL = process.env.SEED_CUSTOMER_EMAIL || "customer@toyimbor.uz";
 const SEED_CUSTOMER_PASSWORD = process.env.SEED_CUSTOMER_PASSWORD || "Customer123!";
 const SEED_VENDOR_EMAIL = process.env.SEED_VENDOR_EMAIL || "vendor@toyimbor.uz";
@@ -69,6 +73,17 @@ let memoryStore = createSeedState();
 function createSeedState() {
   return {
     users: [
+      {
+        _id: SEED_ADMIN_ID,
+        role: "admin",
+        fullName: "Platform Control Admin",
+        phone: "+998911112233",
+        email: SEED_ADMIN_EMAIL,
+        city: "Toshkent",
+        favoriteServiceIds: [],
+        createdAt: "2026-02-01T08:00:00.000Z",
+        updatedAt: "2026-04-04T08:00:00.000Z",
+      },
       {
         _id: SEED_CUSTOMER_ID,
         role: "customer",
@@ -737,6 +752,14 @@ function buildSystemWarnings() {
         "Cloudinary ulanishi sozlanmagan. Fayl upload o'rniga URL orqali rasm qo'shish ishlaydi.",
     });
   }
+  if (SESSION_SECRET === "change-this-session-secret") {
+    warnings.push({
+      code: "weak_session_secret",
+      level: "warning",
+      message:
+        "SESSION_SECRET default qiymatda turibdi. Productionga chiqarishdan oldin kuchli secret o'rnating.",
+    });
+  }
   return warnings;
 }
 
@@ -754,7 +777,7 @@ async function connectDatabase() {
     await ensureSeedAccounts();
     console.log(`[db] MongoDB connected: ${MONGODB_URI}/${MONGODB_DB}`);
   } catch (error) {
-    if (!ALLOW_MEMORY_FALLBACK) {
+    if (!SHOULD_ALLOW_MEMORY_FALLBACK) {
       throw new Error(
         `MongoDB bilan ulanish muvaffaqiyatsiz: ${error.message}. .env dagi MONGODB_URI ni tekshiring.`,
       );
@@ -981,6 +1004,15 @@ async function getUserWithFavorites(userId) {
 async function ensureSeedAccounts() {
   const seedUsers = new Map(createSeedState().users.map((user) => [user._id, user]));
   const accounts = [
+    {
+      id: SEED_ADMIN_ID,
+      role: "admin",
+      fullName: "Platform Control Admin",
+      email: SEED_ADMIN_EMAIL,
+      phone: "+998911112233",
+      password: SEED_ADMIN_PASSWORD,
+      city: "Toshkent",
+    },
     {
       id: SEED_CUSTOMER_ID,
       role: "customer",
@@ -1228,12 +1260,14 @@ function requireRole(role) {
 }
 
 async function getBookings(filters = {}) {
-  const [bookings, services] = await Promise.all([
+  const [bookings, services, users] = await Promise.all([
     readCollection("bookings"),
     readCollection("services"),
+    readCollection("users"),
   ]);
 
   const serviceMap = new Map(services.map((service) => [service._id, service]));
+  const userMap = new Map(users.map((user) => [user._id, user]));
   const items = bookings
     .filter((booking) => {
       if (filters.userId && booking.userId !== filters.userId) return false;
@@ -1245,12 +1279,14 @@ async function getBookings(filters = {}) {
     .sort((a, b) => a.eventDate.localeCompare(b.eventDate))
     .map((booking) => {
       const service = serviceMap.get(booking.serviceId);
+      const vendor = userMap.get(booking.vendorId);
       return {
         ...booking,
         serviceName: service?.name || "Noma'lum xizmat",
         serviceCategory: service?.category || "",
         serviceImage: service?.heroImage || service?.gallery?.[0]?.url || "",
         city: service?.city || "",
+        vendorName: vendor?.venueName || vendor?.fullName || "Vendor",
         statusLabel: statusLabel(booking.status),
         paymentStatusLabel: paymentStatusLabel(booking.paymentStatus),
       };
@@ -1310,21 +1346,33 @@ function paymentStatusLabel(status) {
 }
 
 async function computePlatformStats() {
+  return getPlatformSummary();
+}
+
+async function getPlatformSummary(month = "") {
   const [users, services, bookings] = await Promise.all([
     readCollection("users"),
     readCollection("services"),
     readCollection("bookings"),
   ]);
 
-  const confirmedRevenue = bookings
+  const relevantBookings = month
+    ? bookings.filter((booking) => booking.eventDate.startsWith(month))
+    : bookings;
+
+  const confirmedRevenue = relevantBookings
     .filter((booking) => booking.status === "confirmed")
     .reduce((sum, booking) => sum + toNumber(booking.total), 0);
 
   return {
     serviceCount: services.length,
+    vendorCount: users.filter((user) => user.role === "vendor").length,
     customerCount: users.filter((user) => user.role === "customer").length,
-    bookingCount: bookings.length,
+    bookingCount: relevantBookings.length,
+    pendingCount: relevantBookings.filter((booking) => booking.status === "pending").length,
     revenue: confirmedRevenue,
+    featuredServiceCount: services.filter((service) => service.featured).length,
+    verifiedServiceCount: services.filter((service) => service.verified).length,
   };
 }
 
@@ -1369,7 +1417,7 @@ async function getVendorSummary(vendorId) {
   };
 }
 
-async function getAdminBootstrap(vendorId, month = DEFAULT_MONTH, serviceId = "") {
+async function getVendorBootstrap(vendorId, month = DEFAULT_MONTH, serviceId = "") {
   const [summary, vendor, services, bookings] = await Promise.all([
     getVendorSummary(vendorId),
     findById("users", vendorId),
@@ -1386,6 +1434,78 @@ async function getAdminBootstrap(vendorId, month = DEFAULT_MONTH, serviceId = ""
     services,
     bookings,
     activeService,
+    month,
+    cloudinaryEnabled: CLOUDINARY_ENABLED,
+    warnings: buildSystemWarnings(),
+  };
+}
+
+async function getPlatformAdminBootstrap(adminId, month = DEFAULT_MONTH) {
+  const [summary, adminUser, users, services, bookings] = await Promise.all([
+    getPlatformSummary(month),
+    findById("users", adminId),
+    readCollection("users"),
+    listServices({}),
+    getBookings({ month }),
+  ]);
+
+  const vendors = users.filter((user) => user.role === "vendor");
+  const vendorMap = new Map(vendors.map((vendor) => [vendor._id, vendor]));
+
+  const vendorCards = vendors
+    .map((vendor) => {
+      const vendorServices = services.filter((service) => service.vendorId === vendor._id);
+      const vendorBookings = bookings.filter((booking) => booking.vendorId === vendor._id);
+      const vendorRevenue = vendorBookings
+        .filter((booking) => booking.status === "confirmed")
+        .reduce((sum, booking) => sum + toNumber(booking.total), 0);
+      return {
+        ...sanitizeUser(vendor),
+        serviceCount: vendorServices.length,
+        bookingCount: vendorBookings.length,
+        pendingCount: vendorBookings.filter((booking) => booking.status === "pending").length,
+        revenue: vendorRevenue,
+        verifiedServiceCount: vendorServices.filter((service) => service.verified).length,
+        featuredServiceCount: vendorServices.filter((service) => service.featured).length,
+      };
+    })
+    .sort((left, right) => right.revenue - left.revenue || right.bookingCount - left.bookingCount);
+
+  const serviceCards = services
+    .map((service) => {
+      const serviceBookings = bookings.filter((booking) => booking.serviceId === service._id);
+      const vendor = vendorMap.get(service.vendorId);
+      return {
+        ...service,
+        vendorName: vendor?.venueName || vendor?.fullName || "Vendor",
+        bookingCount: serviceBookings.length,
+        pendingCount: serviceBookings.filter((booking) => booking.status === "pending").length,
+        revenue: serviceBookings
+          .filter((booking) => booking.status === "confirmed")
+          .reduce((sum, booking) => sum + toNumber(booking.total), 0),
+      };
+    })
+    .sort(
+      (left, right) =>
+        Number(right.verified) - Number(left.verified) ||
+        Number(right.featured) - Number(left.featured) ||
+        right.bookingCount - left.bookingCount,
+    );
+
+  const recentBookings = [...bookings]
+    .sort(
+      (left, right) =>
+        right.eventDate.localeCompare(left.eventDate) ||
+        String(right.createdAt || "").localeCompare(String(left.createdAt || "")),
+    )
+    .slice(0, 12);
+
+  return {
+    admin: sanitizeUser(adminUser),
+    summary,
+    vendors: vendorCards,
+    bookings: recentBookings,
+    services: serviceCards,
     month,
     cloudinaryEnabled: CLOUDINARY_ENABLED,
     warnings: buildSystemWarnings(),
@@ -1686,13 +1806,15 @@ app.post("/api/services", requireAuth, requireRole("vendor"), async (req, res, n
   }
 });
 
-app.put("/api/services/:id", requireAuth, requireRole("vendor"), async (req, res, next) => {
+app.put("/api/services/:id", requireAuth, async (req, res, next) => {
   try {
     const existing = await findById("services", req.params.id);
     if (!existing) {
       return res.status(404).json({ message: "Xizmat topilmadi." });
     }
-    if (existing.vendorId !== req.authUser._id) {
+    const isVendorOwner = req.authUser.role === "vendor" && existing.vendorId === req.authUser._id;
+    const isPlatformAdmin = req.authUser.role === "admin";
+    if (!isVendorOwner && !isPlatformAdmin) {
       return res.status(403).json({ message: "Bu xizmatni tahrirlashga ruxsat yo'q." });
     }
 
@@ -2007,8 +2129,11 @@ app.get("/api/bookings", requireAuth, async (req, res, next) => {
     };
     if (req.authUser.role === "vendor") {
       filters.vendorId = req.authUser._id;
-    } else {
+    } else if (req.authUser.role === "customer") {
       filters.userId = req.authUser._id;
+    } else {
+      if (req.query.vendorId) filters.vendorId = req.query.vendorId;
+      if (req.query.userId) filters.userId = req.query.userId;
     }
     const items = await getBookings(filters);
     res.json({ items });
@@ -2113,7 +2238,8 @@ app.patch("/api/bookings/:id", requireAuth, async (req, res, next) => {
 
     const isVendorOwner = req.authUser.role === "vendor" && booking.vendorId === req.authUser._id;
     const isCustomerOwner = req.authUser.role === "customer" && booking.userId === req.authUser._id;
-    if (!isVendorOwner && !isCustomerOwner) {
+    const isPlatformAdmin = req.authUser.role === "admin";
+    if (!isVendorOwner && !isCustomerOwner && !isPlatformAdmin) {
       return res.status(403).json({ message: "Bu bronni boshqarishga ruxsat yo'q." });
     }
 
@@ -2123,7 +2249,7 @@ app.patch("/api/bookings/:id", requireAuth, async (req, res, next) => {
       updatedAt: nowIso(),
     };
 
-    if (isVendorOwner) {
+    if (isVendorOwner || isPlatformAdmin) {
       const nextStatus = req.body.status ?? booking.status;
       const nextPaymentStatus = req.body.paymentStatus ?? booking.paymentStatus;
       if (!BOOKING_STATUSES.has(nextStatus)) {
@@ -2172,11 +2298,21 @@ app.get("/api/dashboard/bootstrap", requireAuth, requireRole("customer"), async 
   }
 });
 
-app.get("/api/admin/bootstrap", requireAuth, requireRole("vendor"), async (req, res, next) => {
+app.get("/api/vendor/bootstrap", requireAuth, requireRole("vendor"), async (req, res, next) => {
   try {
     const month = req.query.month || DEFAULT_MONTH;
     const serviceId = req.query.serviceId || "";
-    const data = await getAdminBootstrap(req.authUser._id, month, serviceId);
+    const data = await getVendorBootstrap(req.authUser._id, month, serviceId);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/admin/bootstrap", requireAuth, requireRole("admin"), async (req, res, next) => {
+  try {
+    const month = req.query.month || DEFAULT_MONTH;
+    const data = await getPlatformAdminBootstrap(req.authUser._id, month);
     res.json(data);
   } catch (error) {
     next(error);
@@ -2190,6 +2326,7 @@ const pageRoutes = {
   "/booking": "booking.html",
   "/dashboard": "dashboard.html",
   "/profile": "profile.html",
+  "/vendor": "vendor.html",
   "/admin": "admin.html",
 };
 

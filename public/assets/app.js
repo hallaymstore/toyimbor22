@@ -6,12 +6,16 @@ const state = {
     month: "",
     activeServiceId: "",
   },
+  platform: {
+    month: "",
+  },
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     state.config = await api("/api/config");
     state.authUser = state.config.authUser || null;
+    initResponsiveChrome();
     renderGlobalChrome();
     renderSystemBanner();
 
@@ -22,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (page === "booking") await initBooking();
     if (page === "dashboard") await initDashboard();
     if (page === "profile") await initProfile();
+    if (page === "vendor") await initVendor();
     if (page === "admin") await initAdmin();
   } catch (error) {
     console.error(error);
@@ -68,6 +73,12 @@ function redirectToAuth(mode = "customer", next = buildNextTarget()) {
   window.location.href = buildAuthUrl(mode, next);
 }
 
+function getHomePathForRole(role) {
+  if (role === "admin") return "/admin";
+  if (role === "vendor") return "/vendor";
+  return "/dashboard";
+}
+
 function redirectAfterAuth() {
   const params = getParams();
   const next = params.get("next");
@@ -75,19 +86,46 @@ function redirectAfterAuth() {
     window.location.href = next;
     return;
   }
-  window.location.href = state.authUser?.role === "vendor" ? "/admin" : "/dashboard";
+  window.location.href = getHomePathForRole(state.authUser?.role);
 }
 
 function ensureRole(role) {
   if (!state.authUser) {
-    redirectToAuth(role === "vendor" ? "vendor" : "customer");
+    redirectToAuth(role || "customer", getHomePathForRole(role));
     return false;
   }
   if (role && state.authUser.role !== role) {
-    window.location.href = state.authUser.role === "vendor" ? "/admin" : "/dashboard";
+    window.location.href = getHomePathForRole(state.authUser.role);
     return false;
   }
   return true;
+}
+
+function initResponsiveChrome() {
+  document.querySelectorAll(".site-header__inner").forEach((inner, index) => {
+    if (inner.querySelector(".menu-toggle")) return;
+    const nav = inner.querySelector(".site-nav");
+    if (!nav) return;
+
+    const actions = inner.querySelector(".site-header__actions");
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "menu-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", `site-menu-${index}`);
+    toggle.innerHTML = '<span></span><span></span><span></span>';
+
+    nav.classList.add("site-header__menu");
+    nav.id = `site-menu-${index}`;
+    if (actions) actions.classList.add("site-header__menu-actions");
+
+    toggle.onclick = () => {
+      const isOpen = inner.classList.toggle("is-menu-open");
+      toggle.setAttribute("aria-expanded", String(isOpen));
+    };
+
+    actions?.before(toggle);
+  });
 }
 
 function toast(message, type = "info") {
@@ -171,14 +209,23 @@ function renderGlobalChrome() {
     if (!state.authUser) {
       container.innerHTML = `
         <a class="button button--ghost button--small" href="${buildAuthUrl("customer")}">Kirish</a>
-        <a class="button button--primary button--small" href="${buildAuthUrl("vendor", "/admin")}">Vendor login</a>
+        <a class="button button--ghost button--small" href="${buildAuthUrl("vendor", "/vendor")}">Vendor</a>
+        <a class="button button--primary button--small" href="${buildAuthUrl("admin", "/admin")}">Admin</a>
+      `;
+      return;
+    }
+
+    if (state.authUser.role === "admin") {
+      container.innerHTML = `
+        <a class="button button--ghost button--small" href="/admin">System admin</a>
+        <button class="button button--primary button--small logout-button" type="button">Chiqish</button>
       `;
       return;
     }
 
     if (state.authUser.role === "vendor") {
       container.innerHTML = `
-        <a class="button button--ghost button--small" href="/admin">Admin panel</a>
+        <a class="button button--ghost button--small" href="/vendor">Vendor panel</a>
         <button class="button button--primary button--small logout-button" type="button">Chiqish</button>
       `;
       return;
@@ -195,17 +242,20 @@ function renderGlobalChrome() {
 
   const sidebarActions = document.getElementById("admin-session-actions");
   if (sidebarActions) {
-    if (state.authUser?.role === "vendor") {
+    if (state.authUser?.role === "vendor" || state.authUser?.role === "admin") {
       sidebarActions.innerHTML = `
         <div class="notice notice--soft">
-          <strong>${escapeHtml(state.authUser.fullName || "Vendor")}</strong>
+          <strong>${escapeHtml(state.authUser.fullName || "Profil")}</strong>
           <div class="muted-text">${escapeHtml(state.authUser.email || "")}</div>
         </div>
         <button class="button button--ghost button--wide logout-button" type="button">Chiqish</button>
       `;
     } else {
       sidebarActions.innerHTML = `
-        <a class="button button--ghost button--wide" href="${buildAuthUrl("vendor", "/admin")}">Vendor login</a>
+        <div class="stack-form">
+          <a class="button button--ghost button--wide" href="${buildAuthUrl("vendor", "/vendor")}">Vendor login</a>
+          <a class="button button--primary button--wide" href="${buildAuthUrl("admin", "/admin")}">Admin login</a>
+        </div>
       `;
     }
   }
@@ -371,19 +421,67 @@ async function initAuth() {
   const venueField = document.getElementById("register-venue-field");
   const title = document.getElementById("auth-hero-title");
   const subtitle = document.getElementById("auth-hero-subtitle");
+  const accessButtons = document.querySelectorAll(".auth-access-switch__button");
+  const adminNote = document.getElementById("auth-admin-note");
+  let accessMode = ["customer", "vendor", "admin"].includes(params.get("mode"))
+    ? params.get("mode")
+    : preferredMode;
 
   function syncRoleUi() {
     const vendorMode = roleSelect.value === "vendor";
     venueField.classList.toggle("hidden", !vendorMode);
-    title.textContent = vendorMode ? "Vendor kirish va ro'yxatdan o'tish" : "Hisobga kirish";
-    subtitle.textContent = vendorMode
-      ? "Vendor sifatida kirib, xizmatlar, bronlar va galereyani real boshqaring."
-      : "Mijoz sifatida kirib, bronlar, profil va tavsiyalarni real ishlating.";
   }
 
-  roleSelect.value = preferredMode;
+  function syncAccessUi() {
+    accessButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.mode === accessMode);
+    });
+
+    if (accessMode === "admin") {
+      title.textContent = "Platform admin kirishi";
+      subtitle.textContent =
+        "Super-admin sifatida vendorlar, xizmatlar va bronlar ustidan markazlashgan nazoratni ishlating.";
+      registerForm.classList.add("hidden");
+      adminNote?.classList.remove("hidden");
+      return;
+    }
+
+    registerForm.classList.remove("hidden");
+    adminNote?.classList.add("hidden");
+    title.textContent = accessMode === "vendor" ? "Vendor kirish va boshqaruv" : "Hisobga kirish";
+    subtitle.textContent =
+      accessMode === "vendor"
+        ? "Vendor sifatida kirib, xizmatlar, bronlar va galereyani real boshqaring."
+        : "Mijoz sifatida kirib, bronlar, profil va tavsiyalarni real ishlating.";
+  }
+
+  roleSelect.value = accessMode === "vendor" ? "vendor" : "customer";
   syncRoleUi();
-  roleSelect.onchange = syncRoleUi;
+  syncAccessUi();
+  roleSelect.onchange = () => {
+    syncRoleUi();
+    if (accessMode !== "admin") {
+      accessMode = roleSelect.value === "vendor" ? "vendor" : "customer";
+      const nextParams = getParams();
+      nextParams.set("mode", accessMode);
+      history.replaceState({}, "", `/auth?${nextParams.toString()}`);
+      syncAccessUi();
+    }
+  };
+
+  accessButtons.forEach((button) => {
+    button.onclick = () => {
+      accessMode = button.dataset.mode || "customer";
+      if (accessMode !== "admin") {
+        roleSelect.value = accessMode === "vendor" ? "vendor" : "customer";
+        syncRoleUi();
+      }
+      const nextParams = getParams();
+      nextParams.set("mode", accessMode);
+      history.replaceState({}, "", `/auth?${nextParams.toString()}`);
+      syncAccessUi();
+    };
+  });
 
   loginForm.onsubmit = async (event) => {
     event.preventDefault();
@@ -516,7 +614,7 @@ async function initBooking() {
     return;
   }
   if (state.authUser.role !== "customer") {
-    window.location.href = "/admin";
+    window.location.href = getHomePathForRole(state.authUser.role);
     return;
   }
 
@@ -625,6 +723,18 @@ async function initDashboard() {
   renderGlobalChrome();
   renderSystemBanner();
   document.getElementById("dashboard-title").textContent = `${bootstrap.user.fullName} uchun boshqaruv paneli`;
+  const dashboardSummary = document.getElementById("dashboard-summary");
+  if (dashboardSummary) {
+    const pendingCount = bootstrap.bookings.filter((item) => item.status === "pending").length;
+    const confirmedCount = bootstrap.bookings.filter((item) => item.status === "confirmed").length;
+    const plannedSpend = bootstrap.bookings.reduce((sum, item) => sum + Number(item.total || 0), 0);
+    dashboardSummary.innerHTML = [
+      summaryCardTemplate("Faol bronlar", String(bootstrap.bookings.length), "Barcha bookinglar"),
+      summaryCardTemplate("Kutayotganlar", String(pendingCount), "Tezkor javob kerak"),
+      summaryCardTemplate("Tasdiqlangan", String(confirmedCount), "Vendor tasdig'i bilan"),
+      summaryCardTemplate("Reja byudjeti", formatMoney(plannedSpend), "Tanlangan xizmatlar bo'yicha"),
+    ].join("");
+  }
   document.getElementById("dashboard-bookings").innerHTML =
     bootstrap.bookings.length > 0
       ? bootstrap.bookings.map((item) => bookingCardTemplate(item)).join("")
@@ -683,6 +793,15 @@ async function initProfile(refreshOnly = false) {
   state.authUser = user;
   renderGlobalChrome();
   document.getElementById("profile-hero-name").textContent = user.fullName;
+  const profileSummary = document.getElementById("profile-summary");
+  if (profileSummary) {
+    profileSummary.innerHTML = [
+      summaryCardTemplate("To'y sanasi", user.weddingDate ? formatDate(user.weddingDate) : "Belgilanmagan"),
+      summaryCardTemplate("Byudjet", formatMoney(user.budget || 0), "Profil rejasidagi limit"),
+      summaryCardTemplate("Mehmonlar", String(user.guestCount || 0), "Event hajmi"),
+      summaryCardTemplate("Saralanganlar", String((user.favorites || []).length), "Yoqqan xizmatlar"),
+    ].join("");
+  }
 
   const form = document.getElementById("profile-form");
   form.elements.namedItem("fullName").value = user.fullName || "";
@@ -863,7 +982,7 @@ async function refreshAdmin(serviceId = state.admin.activeServiceId, month = sta
   const query = new URLSearchParams();
   query.set("month", month || state.config.defaultMonth);
   if (serviceId) query.set("serviceId", serviceId);
-  const data = await api(`/api/admin/bootstrap?${query.toString()}`);
+  const data = await api(`/api/vendor/bootstrap?${query.toString()}`);
 
   state.config = {
     ...state.config,
@@ -982,7 +1101,7 @@ function bindAdminInteractions() {
   });
 }
 
-async function initAdmin() {
+async function initVendor() {
   if (!ensureRole("vendor")) return;
 
   state.admin.month = state.config.defaultMonth;
@@ -1102,5 +1221,235 @@ async function initAdmin() {
     } catch (error) {
       toast(error.message, "error");
     }
+  };
+}
+
+function platformBookingRowTemplate(booking) {
+  return `
+    <tr>
+      <td>
+        <strong>${escapeHtml(booking.customerName)}</strong>
+        <div class="muted-text">${escapeHtml(booking.phone || "")}</div>
+      </td>
+      <td>
+        <strong>${escapeHtml(booking.vendorName || "Vendor")}</strong>
+        <div class="muted-text">${escapeHtml(booking.city || "")}</div>
+      </td>
+      <td>
+        <strong>${escapeHtml(booking.serviceName)}</strong>
+        <div class="muted-text">${escapeHtml(booking.serviceCategory || "")}</div>
+      </td>
+      <td>
+        <strong>${escapeHtml(formatDate(booking.eventDate))}</strong>
+        <div class="muted-text">${escapeHtml(booking.slot)} • ${escapeHtml(String(booking.guestCount || 0))} mehmon</div>
+        <div class="muted-text">${escapeHtml(formatMoney(booking.total))}</div>
+      </td>
+      <td>
+        <span class="status-pill status-pill--${escapeHtml(booking.status)}">${escapeHtml(
+          booking.statusLabel || booking.status,
+        )}</span>
+      </td>
+      <td>
+        <select class="compact-control platform-booking-payment" data-id="${escapeHtml(booking._id)}">
+          ${paymentOptionsTemplate(booking.paymentStatus)}
+        </select>
+      </td>
+      <td>
+        <textarea class="admin-note-field platform-booking-note" data-id="${escapeHtml(booking._id)}" rows="3" placeholder="Izoh">${escapeHtml(
+          booking.note || "",
+        )}</textarea>
+      </td>
+      <td>
+        <div class="stack-form admin-booking-actions">
+          <button class="button button--ghost button--small platform-booking-status" data-id="${escapeHtml(booking._id)}" data-status="confirmed" type="button">Tasdiqlash</button>
+          <button class="button button--ghost button--small platform-booking-status" data-id="${escapeHtml(booking._id)}" data-status="cancelled" type="button">Bekor qilish</button>
+          <button class="button button--primary button--small platform-booking-save" data-id="${escapeHtml(booking._id)}" type="button">Saqlash</button>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+function platformVendorCardTemplate(vendor) {
+  return `
+    <article class="vendor-card">
+      <p class="eyebrow">Vendor partner</p>
+      <h3>${escapeHtml(vendor.venueName || vendor.fullName || "Vendor")}</h3>
+      <p class="muted-text">${escapeHtml(vendor.fullName || "")} • ${escapeHtml(vendor.city || "")}</p>
+      <div class="chip-row">
+        <span class="chip">${escapeHtml(String(vendor.serviceCount || 0))} xizmat</span>
+        <span class="chip">${escapeHtml(String(vendor.bookingCount || 0))} bron</span>
+        <span class="chip">${escapeHtml(String(vendor.pendingCount || 0))} kutmoqda</span>
+      </div>
+      <div class="vendor-card__stats">
+        <div>
+          <span>Tushum</span>
+          <strong>${escapeHtml(formatMoney(vendor.revenue || 0))}</strong>
+        </div>
+        <div>
+          <span>Verified</span>
+          <strong>${escapeHtml(String(vendor.verifiedServiceCount || 0))}</strong>
+        </div>
+        <div>
+          <span>Featured</span>
+          <strong>${escapeHtml(String(vendor.featuredServiceCount || 0))}</strong>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function platformServiceCardTemplate(service) {
+  return `
+    <article class="vendor-card vendor-card--service">
+      <div class="vendor-card__image">
+        <img src="${escapeHtml(service.image || service.heroImage || "")}" alt="${escapeHtml(service.name)}" />
+      </div>
+      <div class="vendor-card__body">
+        <p class="eyebrow">${escapeHtml(service.category || "Xizmat")}</p>
+        <h3>${escapeHtml(service.name)}</h3>
+        <p class="muted-text">${escapeHtml(service.vendorName || "Vendor")} • ${escapeHtml(service.city || "")}</p>
+        <div class="chip-row">
+          <span class="chip">${escapeHtml(String(service.bookingCount || 0))} bron</span>
+          <span class="chip">${escapeHtml(String(service.pendingCount || 0))} kutmoqda</span>
+          <span class="chip">${escapeHtml(formatMoney(service.revenue || 0))}</span>
+        </div>
+        <div class="cluster vendor-card__actions">
+          <button class="button ${service.verified ? "button--ghost" : "button--primary"} button--small platform-service-toggle" data-id="${escapeHtml(service._id)}" data-field="verified" data-value="${escapeHtml(String(!service.verified))}" type="button">
+            ${service.verified ? "Verified dan olish" : "Verified qilish"}
+          </button>
+          <button class="button ${service.featured ? "button--ghost" : "button--primary"} button--small platform-service-toggle" data-id="${escapeHtml(service._id)}" data-field="featured" data-value="${escapeHtml(String(!service.featured))}" type="button">
+            ${service.featured ? "Featured dan olish" : "Featured qilish"}
+          </button>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+async function refreshPlatformAdmin(month = state.platform.month) {
+  const query = new URLSearchParams();
+  query.set("month", month || state.config.defaultMonth);
+  const data = await api(`/api/admin/bootstrap?${query.toString()}`);
+
+  state.config = {
+    ...state.config,
+    warnings: data.warnings || state.config?.warnings || [],
+  };
+  state.platform.month = data.month || state.config.defaultMonth;
+  state.authUser = data.admin || state.authUser;
+  renderGlobalChrome();
+  renderSystemBanner();
+
+  document.getElementById("platform-admin-name").textContent = data.admin?.fullName || "Platform admin";
+  document.getElementById("platform-health").textContent = data.cloudinaryEnabled
+    ? "Media integratsiyasi va platform nazorati faol"
+    : "Cloudinary sozlanmagan, lekin platform nazorati ishlayapti.";
+  document.getElementById("platform-month").value = state.platform.month;
+  document.getElementById("platform-summary").innerHTML = [
+    summaryCardTemplate("Vendorlar", String(data.summary.vendorCount || 0), "Aktiv partnerlar"),
+    summaryCardTemplate("Mijozlar", String(data.summary.customerCount || 0), "Ro'yxatdan o'tgan userlar"),
+    summaryCardTemplate("Bronlar", String(data.summary.bookingCount || 0), `${state.platform.month} bo'yicha`),
+    summaryCardTemplate("Kutayotganlar", String(data.summary.pendingCount || 0), "Tezkor nazorat"),
+    summaryCardTemplate("Featured", String(data.summary.featuredServiceCount || 0), "Bosh sahifa ko'rinishi"),
+    summaryCardTemplate("Tushum", formatMoney(data.summary.revenue || 0), "Tasdiqlangan buyurtmalar"),
+  ].join("");
+
+  document.getElementById("platform-alerts").innerHTML = [
+    `<div class="notice"><strong>${escapeHtml(String(data.summary.pendingCount || 0))} ta kutayotgan bron</strong><div class="muted-text">Operativ tasdiq va to'lov nazorati shu bo'limda.</div></div>`,
+    `<div class="notice"><strong>${escapeHtml(String(data.summary.verifiedServiceCount || 0))}/${escapeHtml(String(data.summary.serviceCount || 0))} ta xizmat verified</strong><div class="muted-text">Moderatsiya orqali katalog sifatini boshqaring.</div></div>`,
+    `<div class="notice"><strong>${escapeHtml(String(data.vendors.length || 0))} ta vendor monitoringda</strong><div class="muted-text">Har bir partner bo'yicha booking va revenue ko'rinadi.</div></div>`,
+  ].join("");
+
+  document.getElementById("platform-bookings-body").innerHTML =
+    data.bookings.length > 0
+      ? data.bookings.map((booking) => platformBookingRowTemplate(booking)).join("")
+      : `<tr><td colspan="8" class="muted-text">Tanlangan oy uchun bronlar topilmadi.</td></tr>`;
+  document.getElementById("platform-vendors").innerHTML =
+    data.vendors.length > 0
+      ? data.vendors.map((vendor) => platformVendorCardTemplate(vendor)).join("")
+      : `<div class="notice">Vendorlar ro'yxati hozircha bo'sh.</div>`;
+  document.getElementById("platform-services").innerHTML =
+    data.services.length > 0
+      ? data.services.map((service) => platformServiceCardTemplate(service)).join("")
+      : `<div class="notice">Moderatsiya uchun xizmatlar topilmadi.</div>`;
+
+  bindPlatformAdminInteractions();
+}
+
+function bindPlatformAdminInteractions() {
+  document.querySelectorAll(".platform-booking-status").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        const paymentField = document.querySelector(`.platform-booking-payment[data-id="${button.dataset.id}"]`);
+        const noteField = document.querySelector(`.platform-booking-note[data-id="${button.dataset.id}"]`);
+        await api(`/api/bookings/${button.dataset.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            status: button.dataset.status,
+            paymentStatus: paymentField?.value || "awaiting",
+            note: noteField?.value || "",
+          }),
+        });
+        toast("Bron holati yangilandi.");
+        await refreshPlatformAdmin(state.platform.month);
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    };
+  });
+
+  document.querySelectorAll(".platform-booking-save").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        const paymentField = document.querySelector(`.platform-booking-payment[data-id="${button.dataset.id}"]`);
+        const noteField = document.querySelector(`.platform-booking-note[data-id="${button.dataset.id}"]`);
+        await api(`/api/bookings/${button.dataset.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            paymentStatus: paymentField?.value || "awaiting",
+            note: noteField?.value || "",
+          }),
+        });
+        toast("Booking tafsilotlari saqlandi.");
+        await refreshPlatformAdmin(state.platform.month);
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    };
+  });
+
+  document.querySelectorAll(".platform-service-toggle").forEach((button) => {
+    button.onclick = async () => {
+      try {
+        await api(`/api/services/${button.dataset.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            [button.dataset.field]: button.dataset.value === "true",
+          }),
+        });
+        toast("Xizmat moderatsiyasi yangilandi.");
+        await refreshPlatformAdmin(state.platform.month);
+      } catch (error) {
+        toast(error.message, "error");
+      }
+    };
+  });
+}
+
+async function initAdmin() {
+  if (!ensureRole("admin")) return;
+
+  state.platform.month = state.config.defaultMonth;
+  await refreshPlatformAdmin();
+
+  document.getElementById("platform-refresh").onclick = async () => {
+    state.platform.month = document.getElementById("platform-month").value || state.config.defaultMonth;
+    await refreshPlatformAdmin(state.platform.month);
+  };
+
+  document.getElementById("platform-month").onchange = async (event) => {
+    state.platform.month = event.target.value || state.config.defaultMonth;
+    await refreshPlatformAdmin(state.platform.month);
   };
 }

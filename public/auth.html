@@ -37,6 +37,12 @@
         </div>
       </section>
 
+      <section class="auth-access-switch">
+        <button class="auth-access-switch__button is-active" data-mode="customer" type="button">Mijoz kirishi</button>
+        <button class="auth-access-switch__button" data-mode="vendor" type="button">Vendor workspace</button>
+        <button class="auth-access-switch__button" data-mode="admin" type="button">System admin</button>
+      </section>
+
       <section class="auth-grid">
         <article class="glass-card auth-card">
           <p class="eyebrow">Kirish</p>
@@ -57,6 +63,9 @@
         <article class="glass-card auth-card">
           <p class="eyebrow">Ro'yxatdan o'tish</p>
           <h2>Yangi akkaunt</h2>
+          <div id="auth-admin-note" class="notice hidden">
+            Admin akkauntlar server konfiguratsiyasi orqali boshqariladi. System admin uchun mavjud login ma'lumotlaridan foydalaning.
+          </div>
           <form id="register-form" class="stack-form">
             <div class="form-grid">
               <label class="field">

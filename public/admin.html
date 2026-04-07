@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>To'yimBor | Vendor admin panel</title>
+    <title>To'yimBor | System admin panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,39 +16,49 @@
     />
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
-  <body class="admin-body" data-page="admin">
+  <body class="admin-body admin-body--platform" data-page="admin">
     <aside class="admin-sidebar">
       <div>
-        <a class="brand brand--sidebar" href="/">To'yimBor Vendor</a>
-        <p class="admin-sidebar__text">Stitch dizaynidan moslashtirilgan boshqaruv paneli</p>
+        <a class="brand brand--sidebar" href="/">To'yimBor Control</a>
+        <p class="admin-sidebar__text">Vendorlar, bronlar va katalog sifatini yagona markazdan boshqaring.</p>
       </div>
       <nav class="admin-sidebar__nav">
-        <a href="#admin-overview">Asosiy panel</a>
-        <a href="#admin-bookings-section">Bronlar</a>
-        <a href="#admin-calendar-section">Kalendar</a>
-        <a href="#admin-services-section">Xizmatlar</a>
+        <a href="#platform-overview">Asosiy nazorat</a>
+        <a href="#platform-bookings-section">Bronlar</a>
+        <a href="#platform-vendors-section">Vendorlar</a>
+        <a href="#platform-services-section">Moderatsiya</a>
       </nav>
-      <a class="button button--primary button--wide" id="create-service-button" href="#">Yangi xizmat</a>
+      <div class="stack-form">
+        <label class="field">
+          <span>Kuzatuv oyi</span>
+          <input id="platform-month" class="compact-control" type="month" />
+        </label>
+        <button class="button button--primary button--wide" id="platform-refresh" type="button">Ma'lumotni yangilash</button>
+      </div>
       <div id="admin-session-actions" class="stack-form"></div>
     </aside>
 
     <main class="admin-main">
-      <section id="admin-overview" class="admin-section">
+      <section id="platform-overview" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Vendor dashboard</p>
-            <h1 id="admin-vendor-name">Vendor admin</h1>
+            <p class="eyebrow">System admin</p>
+            <h1 id="platform-admin-name">Platform control</h1>
           </div>
-          <div id="cloudinary-state" class="notice notice--soft"></div>
+          <div id="platform-health" class="notice notice--soft"></div>
         </div>
-        <div id="admin-summary" class="stats-grid"></div>
+        <div id="platform-summary" class="stats-grid"></div>
       </section>
 
-      <section id="admin-bookings-section" class="admin-section">
+      <section class="admin-section">
+        <div id="platform-alerts" class="insight-grid"></div>
+      </section>
+
+      <section id="platform-bookings-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Bronlar boshqaruvi</p>
-            <h2>So'nggi buyurtmalar</h2>
+            <p class="eyebrow">Platform bookinglar</p>
+            <h2>Operatsion nazorat</h2>
           </div>
         </div>
         <div class="admin-table-wrap">
@@ -56,6 +66,7 @@
             <thead>
               <tr>
                 <th>Mijoz</th>
+                <th>Vendor</th>
                 <th>Xizmat</th>
                 <th>Sana</th>
                 <th>Holat</th>
@@ -64,136 +75,29 @@
                 <th>Amal</th>
               </tr>
             </thead>
-            <tbody id="admin-bookings-body"></tbody>
+            <tbody id="platform-bookings-body"></tbody>
           </table>
         </div>
       </section>
 
-      <section id="admin-calendar-section" class="admin-section">
+      <section id="platform-vendors-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Bandlik nazorati</p>
-            <h2>Kalendar</h2>
-          </div>
-          <div class="cluster">
-            <select id="calendar-service" class="compact-control"></select>
-            <input id="calendar-month" class="compact-control" type="month" />
-            <button id="calendar-refresh" class="button button--ghost button--small" type="button">Yangilash</button>
+            <p class="eyebrow">Vendorlar</p>
+            <h2>Partnerlar holati</h2>
           </div>
         </div>
-        <div id="admin-calendar-grid" class="calendar-grid"></div>
+        <div id="platform-vendors" class="vendor-grid"></div>
       </section>
 
-      <section id="admin-services-section" class="admin-section">
+      <section id="platform-services-section" class="admin-section">
         <div class="section__heading">
           <div>
-            <p class="eyebrow">Xizmat tahriri</p>
-            <h2>Galereya, tavsif va narxlar</h2>
+            <p class="eyebrow">Katalog moderatsiyasi</p>
+            <h2>Xizmatlarni tasdiqlash va ko'rsatish</h2>
           </div>
         </div>
-        <div class="admin-edit-layout">
-          <div id="admin-service-list" class="admin-service-list"></div>
-          <div class="glass-card">
-            <form id="admin-service-form" class="stack-form">
-              <input type="hidden" name="_id" />
-              <div class="form-grid">
-                <label class="field">
-                  <span>Nomi</span>
-                  <input name="name" type="text" required />
-                </label>
-                <label class="field">
-                  <span>Kategoriya</span>
-                  <input name="category" type="text" required />
-                </label>
-                <label class="field">
-                  <span>Tur</span>
-                  <input name="type" type="text" required />
-                </label>
-                <label class="field">
-                  <span>Shahar</span>
-                  <input name="city" type="text" />
-                </label>
-                <label class="field">
-                  <span>Tuman</span>
-                  <input name="district" type="text" />
-                </label>
-                <label class="field">
-                  <span>Manzil</span>
-                  <input name="address" type="text" />
-                </label>
-                <label class="field">
-                  <span>Badge</span>
-                  <input name="badge" type="text" />
-                </label>
-                <label class="field">
-                  <span>Sig'im</span>
-                  <input name="capacity" type="number" />
-                </label>
-                <label class="field">
-                  <span>Narx / mehmon</span>
-                  <input name="pricePerGuest" type="number" />
-                </label>
-                <label class="field">
-                  <span>Base price</span>
-                  <input name="basePrice" type="number" />
-                </label>
-                <label class="field">
-                  <span>Hero image URL</span>
-                  <input name="heroImage" type="url" placeholder="https://..." />
-                </label>
-                <label class="field">
-                  <span>Kunlik maksimal bron</span>
-                  <input name="maxDailyBookings" type="number" min="1" />
-                </label>
-                <label class="field field--full">
-                  <span>Qisqa tavsif</span>
-                  <input name="shortDescription" type="text" />
-                </label>
-                <label class="field field--full">
-                  <span>Batafsil tavsif</span>
-                  <textarea name="description" rows="5"></textarea>
-                </label>
-                <label class="field field--full">
-                  <span>Qulayliklar (vergul bilan)</span>
-                  <input name="amenitiesText" type="text" />
-                </label>
-                <label class="field field--full">
-                  <span>Uslublar (vergul bilan)</span>
-                  <input name="stylesText" type="text" />
-                </label>
-                <div class="field field--full checkbox-row">
-                  <label class="checkbox-item">
-                    <input name="featured" type="checkbox" />
-                    <span>Featured</span>
-                  </label>
-                  <label class="checkbox-item">
-                    <input name="verified" type="checkbox" />
-                    <span>Verified</span>
-                  </label>
-                </div>
-              </div>
-              <div class="service-form__footer">
-                <button class="button button--primary" type="submit">Saqlash</button>
-                <button class="button button--danger" id="delete-service-button" type="button">Xizmatni o'chirish</button>
-              </div>
-            </form>
-
-            <form id="admin-image-upload-form" class="stack-form upload-form">
-              <h3>Galereya upload</h3>
-              <label class="field">
-                <span>Rasm URL</span>
-                <input name="imageUrl" type="url" placeholder="https://..." />
-              </label>
-              <label class="field">
-                <span>Yoki fayl tanlang</span>
-                <input name="image" type="file" accept="image/*" />
-              </label>
-              <button class="button button--ghost" type="submit">Galereyaga qo'shish</button>
-            </form>
-
-            <div id="admin-gallery" class="gallery-grid"></div>
-          </div>
-        </div>
+        <div id="platform-services" class="vendor-grid vendor-grid--compact"></div>
       </section>
     </main>
 
